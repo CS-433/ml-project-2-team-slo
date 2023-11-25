@@ -13,7 +13,7 @@ import numpy as np
 from constants import*
 from helpers import*
 
-def load_datas(nb_img=20):
+def load_datas(nb_img):
     """Load train and test sets from disk.
     Args:
         infilename (str): Path to the image file.

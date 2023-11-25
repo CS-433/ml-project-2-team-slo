@@ -14,4 +14,12 @@ IMAGE_DIR = ROOT_DIR + "images/"
 GT_DIR = ROOT_DIR + "groundtruth/"
 
 NB_IMAGES_MAX = os.listdir(IMAGE_DIR)
-NB_IMAGES = 20
+NB_IMAGES = 10
+
+#Image size
+PATCH_SIZE = 16
+
+#Training parameters
+FOREGROUND_THRESHOLD = 0.25
+TEST_SIZE = 0.2
+VALIDATION_SIZE = 0.3
