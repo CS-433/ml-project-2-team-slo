@@ -7,6 +7,7 @@
 
 # import libraries
 import numpy as np
+import torch
 from sklearn.model_selection import train_test_split
 
 # import files
@@ -22,16 +23,8 @@ class ProcessingData:
             imgs (np.ndarray): Images.
             gt_imgs (np.ndarray): Groundtruth images.
         """
-        self.imgs = np.array(imgs)
-        self.gt_imgs = np.array(gt_imgs)
-        self.imgs_patches = np.array([])
-        self.gt_imgs_patches = np.array([])
-        self.imgs_train = np.array([])
-        self.gt_imgs_train = np.array([])
-        self.imgs_test = np.array([])
-        self.gt_imgs_test = np.array([])
-        self.imgs_validation = np.array([])
-        self.gt_imgs_validation = np.array([])
+        self.imgs = torch.tensor(imgs)
+        self.gt_imgs = torch.tensor(gt_imgs)
     
     def create_patches(self, patch_size=PATCH_SIZE):
         """Create patches from the images.
@@ -42,20 +35,23 @@ class ProcessingData:
         img_patches = [img_crop(self.imgs[i], patch_size, patch_size) for i in range(NB_IMAGES)]
         gt_patches = [img_crop(self.gt_imgs[i], patch_size, patch_size) for i in range(NB_IMAGES)]
         # Linearize list of patches
-        self.imgs_patches = np.asarray(
+
+        imgs_patches = np.asarray(
             [
                 img_patches[i][j]
                 for i in range(len(img_patches))
                 for j in range(len(img_patches[i]))
             ]
         )
-        self.gt_imgs_patches = np.asarray(
+        self.imgs_patches = torch.from_numpy(imgs_patches)
+        gt_imgs_patches = np.asarray(
             [
                 gt_patches[i][j]
                 for i in range(len(gt_patches))
                 for j in range(len(gt_patches[i]))
             ]
         )
+        self.gt_imgs_patches = torch.from_numpy(gt_imgs_patches)
         print("Done!")
     
     def create_labels(self, threshold=FOREGROUND_THRESHOLD):
@@ -64,9 +60,9 @@ class ProcessingData:
             FOREGROUND_THRESHOLD (float): Threshold to determine if a patch is foreground or background.
         """
         print("Creating labels...")
-        self.gt_imgs_patches = np.asarray(
+        self.gt_imgs_patches = torch.tensor(
             [
-                1 if np.mean(self.gt_imgs_patches[i]) > threshold else 0
+                1 if torch.mean(self.gt_imgs_patches[i]) > threshold else 0
                 for i in range(len(self.gt_imgs_patches))
             ]
         )
