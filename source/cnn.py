@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from constants import *
+from helpers import *
 
 class Basic_CNN(nn.Module):
     def __init__(self, patch_size):
@@ -51,16 +52,21 @@ class Basic_CNN(nn.Module):
             with torch.no_grad():
                 total_correct = 0
                 test_loss = 0
+                tot_preds = []
+                tot_targets = []
                 for input, target in val_loader:
                     output = self(input)
                     predictions = (output > FOREGROUND_THRESHOLD).float()
                     target = target.float().view(-1, 1)
                     total_correct += (predictions == target).sum().item()
                     test_loss += criterion(output, target).item() * len(input)
+                    tot_preds.append(predictions)
+                    tot_targets.append(target)
 
                 test_loss /= len(val_loader.dataset)
                 accuracy = total_correct / len(val_loader.dataset)
-                print(f'Epoch {epoch+1}/{num_epochs}, Loss: {test_loss}, Validation Accuracy: {accuracy:.4f}')
+                f1 = f1_score(torch.cat(tot_preds).numpy(), torch.cat(tot_targets).numpy())
+                print(f'Epoch {epoch+1}/{num_epochs}, Loss: {test_loss}, Validation Accuracy: {accuracy:.4f}, F1 score: {f1:.4f}')
 
 
     def predict(self, test_loader):

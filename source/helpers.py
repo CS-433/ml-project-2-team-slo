@@ -79,3 +79,17 @@ def img_crop(im, w, h):
                 im_patch = im[j : j + w, i : i + h, :]
             list_patches.append(im_patch)
     return list_patches
+
+
+def f1_score(preds, targets):
+    """Compute the F1 score."""
+    assert len(preds) == len(targets)
+    
+    tp = np.sum(preds * targets)
+    fp = np.sum(preds * (1 - targets))
+    fn = np.sum((1 - preds) * targets)
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+    if precision + recall == 0:
+        return 0
+    return 2 * (precision * recall) / (precision + recall)
