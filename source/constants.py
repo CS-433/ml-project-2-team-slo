@@ -10,10 +10,10 @@ import os
 
 #File paths
 ROOT_DIR = "../data/training/"
-IMAGE_DIR = ROOT_DIR + "images/"
+IMAGE_DIR = os.path.join(ROOT_DIR, "images/")
 GT_DIR = ROOT_DIR + "groundtruth/"
 
-NB_IMAGES_MAX = os.listdir(IMAGE_DIR)
+NB_IMAGES_MAX = len(os.listdir(IMAGE_DIR))
 NB_IMAGES = 10
 
 #Image size
