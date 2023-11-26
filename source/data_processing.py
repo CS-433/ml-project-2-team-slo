@@ -32,6 +32,7 @@ class ProcessingData:
         self.gt_imgs_test = np.array([])
         self.imgs_validation = np.array([])
         self.gt_imgs_validation = np.array([])
+
     
     def create_patches(self, patch_size=PATCH_SIZE):
         """Create patches from the images.
@@ -39,8 +40,8 @@ class ProcessingData:
             PATCH_SIZE (int): Size of the patch.
         """
         print("Creating patches...")
-        img_patches = [img_crop(self.imgs[i], patch_size, patch_size) for i in range(NB_IMAGES)]
-        gt_patches = [img_crop(self.gt_imgs[i], patch_size, patch_size) for i in range(NB_IMAGES)]
+        img_patches = [img_crop(self.imgs[i], patch_size, patch_size) for i in range(len(self.imgs))]
+        gt_patches = [img_crop(self.gt_imgs[i], patch_size, patch_size) for i in range(len(self.imgs))]
         # Linearize list of patches
         self.imgs_patches = np.asarray(
             [
@@ -58,6 +59,7 @@ class ProcessingData:
         )
         print("Done!")
     
+
     def create_labels(self, threshold=FOREGROUND_THRESHOLD):
         """Create labels from the patches.
         Args:
@@ -71,6 +73,8 @@ class ProcessingData:
             ]
         )
         print("Done!")
+
+
     def create_sets(self, validation_size=VALIDATION_SIZE, test_size=TEST_SIZE):
         """Split the data into train, test and validation sets."""
         print("Splitting data...")
