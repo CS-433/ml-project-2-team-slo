@@ -23,8 +23,17 @@ class ProcessingData:
             imgs (np.ndarray): Images.
             gt_imgs (np.ndarray): Groundtruth images.
         """
-        self.imgs = torch.tensor(imgs)
-        self.gt_imgs = torch.tensor(gt_imgs)
+        self.imgs = np.array(imgs)
+        self.gt_imgs = np.array(gt_imgs)
+        self.imgs_patches = np.array([])
+        self.gt_imgs_patches = np.array([])
+        self.imgs_train = np.array([])
+        self.gt_imgs_train = np.array([])
+        self.imgs_test = np.array([])
+        self.gt_imgs_test = np.array([])
+        self.imgs_validation = np.array([])
+        self.gt_imgs_validation = np.array([])
+
     
     def create_patches(self, patch_size=PATCH_SIZE):
         """Create patches from the images.
@@ -32,8 +41,8 @@ class ProcessingData:
             PATCH_SIZE (int): Size of the patch.
         """
         print("Creating patches...")
-        img_patches = [img_crop(self.imgs[i], patch_size, patch_size) for i in range(NB_IMAGES)]
-        gt_patches = [img_crop(self.gt_imgs[i], patch_size, patch_size) for i in range(NB_IMAGES)]
+        img_patches = [img_crop(self.imgs[i], patch_size, patch_size) for i in range(len(self.imgs))]
+        gt_patches = [img_crop(self.gt_imgs[i], patch_size, patch_size) for i in range(len(self.imgs))]
         # Linearize list of patches
 
         imgs_patches = np.asarray(
@@ -54,6 +63,7 @@ class ProcessingData:
         self.gt_imgs_patches = torch.from_numpy(gt_imgs_patches)
         print("Done!")
     
+
     def create_labels(self, threshold=FOREGROUND_THRESHOLD):
         """Create labels from the patches.
         Args:
@@ -67,6 +77,8 @@ class ProcessingData:
             ]
         )
         print("Done!")
+
+
     def create_sets(self, validation_size=VALIDATION_SIZE, test_size=TEST_SIZE):
         """Split the data into train, test and validation sets."""
         print("Splitting data...")
