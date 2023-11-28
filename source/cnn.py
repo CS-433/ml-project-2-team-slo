@@ -39,6 +39,7 @@ class Basic_CNN(nn.Module):
     
     def train_model(self, optimizer, criterion, train_loader, val_loader, num_epochs=10):
         """Train the model."""
+        self.to(self.device)
         for epoch in range(num_epochs):
             self.train()
             for input, target in train_loader:
@@ -59,6 +60,7 @@ class Basic_CNN(nn.Module):
                 tot_preds = []
                 tot_targets = []
                 for input, target in val_loader:
+                    input, target = input.to(self.device), target.to(self.device)
                     output = self(input)
                     predictions = (output > FOREGROUND_THRESHOLD).float()
                     target = target.float().view(-1, 1)
@@ -69,17 +71,22 @@ class Basic_CNN(nn.Module):
 
                 test_loss /= len(val_loader.dataset)
                 accuracy = total_correct / len(val_loader.dataset)
-                f1 = f1_score(torch.cat(tot_preds).numpy(), torch.cat(tot_targets).numpy())
+                f1 = f1_score(torch.cat(tot_preds).cpu().numpy(), torch.cat(tot_targets).cpu().numpy())
                 print(f'Epoch {epoch+1}/{num_epochs}, Loss: {test_loss}, Validation Accuracy: {accuracy:.4f}, F1 score: {f1:.4f}')
 
 
     def predict(self, test_loader):
-        """Predict the labels of the test set."""
-        self.eval()
-        predictions = []
-        with torch.no_grad():
-            for input in test_loader:
-                output = self(input)
-                output = (output > FOREGROUND_THRESHOLD).float()
-                predictions.append(output)
-        return torch.cat(predictions).numpy()
+      """Predict the labels of the test set."""
+      self.eval()
+      predictions = []
+      device = next(self.parameters()).device  # Get the device of the model (assuming all parameters are on the same device)
+
+      with torch.no_grad():
+          for input in test_loader:
+              input = input.to(device)  # Move input data to the same device as the model
+              output = self(input)
+              output = (output > FOREGROUND_THRESHOLD).float()
+              predictions.append(output.cpu())  # Move predictions back to CPU
+
+      return torch.cat(predictions).numpy()
+
