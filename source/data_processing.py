@@ -45,22 +45,20 @@ class ProcessingData:
         gt_patches = [img_crop(self.gt_imgs[i], patch_size, patch_size) for i in range(len(self.imgs))]
         # Linearize list of patches
 
-        imgs_patches = np.asarray(
+        self.imgs_patches = np.asarray(
             [
                 img_patches[i][j]
                 for i in range(len(img_patches))
                 for j in range(len(img_patches[i]))
             ]
         )
-        self.imgs_patches = torch.from_numpy(imgs_patches)
-        gt_imgs_patches = np.asarray(
+        self.gt_imgs_patches = np.asarray(
             [
                 gt_patches[i][j]
                 for i in range(len(gt_patches))
                 for j in range(len(gt_patches[i]))
             ]
         )
-        self.gt_imgs_patches = torch.from_numpy(gt_imgs_patches)
         print("Done!")
     
 
@@ -70,9 +68,9 @@ class ProcessingData:
             FOREGROUND_THRESHOLD (float): Threshold to determine if a patch is foreground or background.
         """
         print("Creating labels...")
-        self.gt_imgs_patches = torch.tensor(
+        self.gt_imgs_patches = np.asarray(
             [
-                1 if torch.mean(self.gt_imgs_patches[i]) > threshold else 0
+                1 if np.mean(self.gt_imgs_patches[i]) > threshold else 0
                 for i in range(len(self.gt_imgs_patches))
             ]
         )
@@ -80,7 +78,11 @@ class ProcessingData:
 
 
     def create_sets(self, validation_size=VALIDATION_SIZE, test_size=TEST_SIZE):
-        """Split the data into train, test and validation sets."""
+        """Split the data into train, test and validation sets.
+        Args:
+            VALIDATION_SIZE (float): Size of the validation set.
+            TEST_SIZE (float): Size of the test set.
+        """
         print("Splitting data...")
         tmp_x, self.imgs_validation, tmp_y, self.gt_imgs_validation  = train_test_split(
             self.imgs_patches, self.gt_imgs_patches, test_size=validation_size, random_state=42
@@ -89,3 +91,20 @@ class ProcessingData:
             tmp_x, tmp_y, test_size=test_size, random_state=42
         )
         print("Done!")
+    
+    def compute_mean_std(self):
+        """Compute mean and standard deviation of the train set."""
+        print("Computing mean and std...")
+        mean_r = np.mean(self.imgs[:, 0, :, :])
+        mean_g = np.mean(self.imgs[:, 1, :, :])
+        mean_b = np.mean(self.imgs[:, 2, :, :])
+
+        means = np.array([mean_r, mean_g, mean_b])
+
+        std_r = np.std(self.imgs[:, 0, :, :])
+        std_g = np.std(self.imgs[:, 1, :, :])
+        std_b = np.std(self.imgs[:, 2, :, :])
+
+        stds = np.array([std_r, std_g, std_b])
+        
+        return means, stds
