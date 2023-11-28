@@ -30,3 +30,14 @@ def load_datas(nb_img):
     gt_imgs = [load_image(GT_DIR + files[i]) for i in range(n)]
     print(files[0])
     return np.asarray(imgs), np.asarray(gt_imgs)
+
+def load_test_datas():
+    """Load train and test sets from disk.
+    Args:
+        infilename (str): Path to the image file.
+    Returns:
+        np.ndarray: The loaded images.
+    """
+    files = os.listdir(TEST_DIR)
+    imgs = [load_image(TEST_DIR + file + '/' + file + '.png') for file in files if not file.startswith('.')]
+    return np.asarray(imgs)
