@@ -9,9 +9,11 @@
 import os
 
 #File paths
-ROOT_DIR = "../data/training/"
-IMAGE_DIR = os.path.join(ROOT_DIR, "images/")
-GT_DIR = ROOT_DIR + "groundtruth/"
+ROOT_DIR = "../data/"
+TRAIN_DIR = ROOT_DIR + "training/"
+TEST_DIR = ROOT_DIR + "test_set_images/"
+IMAGE_DIR = os.path.join(TRAIN_DIR, "images/")
+GT_DIR = TRAIN_DIR + "groundtruth/"
 
 NB_IMAGES_MAX = len(os.listdir(IMAGE_DIR))
 NB_IMAGES = 10

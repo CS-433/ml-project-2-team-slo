@@ -5,6 +5,8 @@ from helpers import *
 
 class Basic_CNN(nn.Module):
     def __init__(self, patch_size):
+        """Constructor."""
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         super(Basic_CNN, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, stride=1, padding=1)
         self.relu1 = nn.ReLU()
@@ -36,9 +38,11 @@ class Basic_CNN(nn.Module):
 
     
     def train_model(self, optimizer, criterion, train_loader, val_loader, num_epochs=10):
+        """Train the model."""
         for epoch in range(num_epochs):
             self.train()
             for input, target in train_loader:
+                input, target = input.to(self.device), target.to(self.device)
                 optimizer.zero_grad()
                 output = self(input)
                 target = target.float().view(-1, 1)
