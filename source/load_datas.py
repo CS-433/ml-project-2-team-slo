@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- author : Vincent Roduit -*-
 # -*- date : 2023-11-25 -*-
-# -*- Last revision: 2023-11-35 -*-
+# -*- Last revision: 2023-11-25 -*-
 # -*- python version : 3.11.6 -*-
 # -*- Functions to load the datas -*-
 
@@ -29,4 +29,15 @@ def load_datas(nb_img):
     print("Loading " + str(n) + " images")
     gt_imgs = [load_image(GT_DIR + files[i]) for i in range(n)]
     print(files[0])
-    return imgs, gt_imgs
+    return np.asarray(imgs), np.asarray(gt_imgs)
+
+def load_test_datas():
+    """Load train and test sets from disk.
+    Args:
+        infilename (str): Path to the image file.
+    Returns:
+        np.ndarray: The loaded images.
+    """
+    files = os.listdir(TEST_DIR)
+    imgs = [load_image(TEST_DIR + file + '/' + file + '.png') for file in files if not file.startswith('.')]
+    return np.asarray(imgs)
