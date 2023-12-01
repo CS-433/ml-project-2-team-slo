@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import torchvision
 from torch.utils.data import DataLoader
 from typing import Optional
+from helpers import f1_score
 
 def train_epoch(
     model: nn.Module,
@@ -73,7 +74,7 @@ def fit(
         train_losses.append(train_loss)
 
         if valid_dataloader is not None:
-            valid_loss, valid_acc = predict(model, valid_dataloader, device, verbose=False)
+            valid_loss, valid_acc, f1, predictions= predict(model, valid_dataloader, device, verbose=False)
             valid_losses.append(valid_loss)
             valid_accs.append(valid_acc)
         if scheduler is not None:
@@ -91,6 +92,8 @@ def predict(
     model.eval()
     test_loss = 0
     correct = 0
+    predictions = []
+    targets = []
     with torch.no_grad():
         for data, target in test_dataloader:
             data, target = data.to(device), target.to(device)
@@ -99,16 +102,20 @@ def predict(
             test_loss += loss.item()
             pred = output.data.max(1, keepdim=True)[1]
             correct += pred.eq(target.data.view_as(pred)).sum()
-
+            predictions.append(pred.cpu())
+            targets.append(target.cpu())
+    targets = torch.cat(targets).numpy()
+    predictions = torch.cat(predictions).numpy()
     test_loss /= len(test_dataloader.dataset)
     accuracy = 100.0 * correct / len(test_dataloader.dataset)
+    f1 = f1_score(targets, predictions)
 
     if verbose:
         print(
             f"Test set: Avg. loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_dataloader.dataset)} ({accuracy:.0f}%)"
         )
 
-    return test_loss, accuracy
+    return test_loss, accuracy, f1, predictions
 
 
 def visualize_images(dataloader):
