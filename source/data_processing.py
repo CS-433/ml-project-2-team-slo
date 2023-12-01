@@ -84,11 +84,11 @@ class ProcessingData:
             TEST_SIZE (float): Size of the test set.
         """
         print("Splitting data...")
-        tmp_x, self.imgs_validation, tmp_y, self.gt_imgs_validation  = train_test_split(
-            self.imgs_patches, self.gt_imgs_patches, test_size=validation_size, random_state=42
+        tmp_x, self.imgs_test, tmp_y, self.gt_imgs_test  = train_test_split(
+            self.imgs_patches, self.gt_imgs_patches, test_size=test_size, random_state=42
         )
-        self.imgs_train, self.imgs_test, self.gt_imgs_train, self.gt_imgs_test = train_test_split(
-            tmp_x, tmp_y, test_size=test_size, random_state=42
+        self.imgs_train, self.imgs_validation, self.gt_imgs_train, self.gt_imgs_validation = train_test_split(
+            tmp_x, tmp_y, test_size=validation_size, random_state=42
         )
         print("Done!")
     def compute_mean_std(self):
@@ -107,3 +107,8 @@ class ProcessingData:
         stds = np.array([std_r, std_g, std_b])
         
         return means, stds
+    def permute_axis(self):
+        """Permute the axis of the images."""
+        print("Permuting axis...")
+        self.imgs_patches = np.transpose(self.imgs_patches, (0, 3, 1, 2))
+        print("Done!")
