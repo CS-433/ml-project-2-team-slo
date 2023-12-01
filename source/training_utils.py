@@ -121,34 +121,6 @@ def visualize_images(dataloader):
 
     show(grid)
 
-def test_models(models,optimizers,train_dataloader,valid_dataloader,test_dataloader,DEVICE,scheduler=None):
-    # initialize model
-    train_losses_all = []
-    validate_losses_all = []
-    valid_accs_all = []
-    test_loss_all = []
-    test_acc_all = []
-
-    for i, (optimizer,model) in enumerate(zip(optimizers,models)):
-      # train the MLP
-      print(f'****** Model {i+1} **************')
-      train_losses, valid_losses, valid_accs = fit(
-          model=model,
-          train_dataloader=train_dataloader,
-          valid_dataloader=valid_dataloader,
-          optimizer=optimizer,
-          epochs=20,
-          device=DEVICE,
-          scheduler=scheduler
-      )
-      train_losses_all.append(train_losses)
-      validate_losses_all.append(valid_losses)
-      valid_accs_all.append(valid_accs_all)
-      test_loss, test_accuracy = predict(model=model, test_dataloader=test_dataloader, device=DEVICE)
-      test_loss_all.append(test_loss)
-      test_acc_all.append(test_accuracy)
-    return train_losses_all, validate_losses_all, valid_accs_all, test_loss_all, test_acc_all
-
 def plot_losses(train_losses_all,validate_losses_all,all_in_one=True):
   for i, (train_loss, validate_loss) in enumerate(zip(train_losses_all, validate_losses_all)):
     plt.plot(train_loss, '-*',label = 'train, model ' + str(i+1))
