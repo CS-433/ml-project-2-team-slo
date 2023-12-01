@@ -74,7 +74,7 @@ def fit(
         train_losses.append(train_loss)
 
         if valid_dataloader is not None:
-            valid_loss, valid_acc, f1, predictions= predict(model, valid_dataloader, device, verbose=False)
+            valid_loss, valid_acc, f1, _= predict(model, valid_dataloader, device, verbose=False)
             valid_losses.append(valid_loss)
             valid_accs.append(valid_acc)
         if scheduler is not None:
@@ -82,7 +82,7 @@ def fit(
         if valid_dataloader is None:
             print(f"Epoch {epoch}: Train Loss={train_loss:.4f}")
         else:
-            print(f"Epoch {epoch}: Train Loss={train_loss:.4f}, Validation Loss={valid_loss:.4f}, Validation acc={valid_acc:.4f}, Validation F1-Score: {valid_f1_score}")
+            print(f"Epoch {epoch}: Train Loss={train_loss:.4f}, Validation Loss={valid_loss:.4f}, Validation acc={valid_acc:.4f}, Validation F1-Score: {f1}")
     return train_losses, valid_losses, valid_accs
 
 
@@ -104,11 +104,12 @@ def predict(
             correct += pred.eq(target.data.view_as(pred)).sum()
             predictions.append(pred.cpu())
             targets.append(target.cpu())
-    targets = torch.cat(targets).numpy()
-    predictions = torch.cat(predictions).numpy()
+
+    targets = torch.cat(targets).numpy().ravel()
+    predictions = torch.cat(predictions).numpy().ravel()
     test_loss /= len(test_dataloader.dataset)
     accuracy = 100.0 * correct / len(test_dataloader.dataset)
-    f1 = f1_score(targets, predictions)
+    f1 = f1_score(predictions,targets)
 
     if verbose:
         print(
@@ -116,6 +117,21 @@ def predict(
         )
 
     return test_loss, accuracy, f1, predictions
+
+def predict_test_set(
+    model: nn.Module, test_dataloader: DataLoader, device: torch.device
+):
+    model.eval()
+    predictions = []
+    with torch.no_grad():
+        for data in test_dataloader:
+            data = data.to(device)
+            output = model(data)
+            pred = output.data.max(1, keepdim=True)[1]
+            predictions.append(pred.cpu())
+    predictions = torch.cat(predictions).numpy()
+    return predictions
+
 def visualize_images(dataloader):
     images = next(iter(dataloader))[0][:10]
     grid = torchvision.utils.make_grid(images, nrow=5, padding=10)
