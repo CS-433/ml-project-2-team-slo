@@ -74,7 +74,7 @@ def fit(
         train_losses.append(train_loss)
 
         if valid_dataloader is not None:
-            valid_loss, valid_acc,valid_f1_score, _= predict(model, valid_dataloader, device, verbose=False)
+            valid_loss, valid_acc, f1, predictions= predict(model, valid_dataloader, device, verbose=False)
             valid_losses.append(valid_loss)
             valid_accs.append(valid_acc)
         if scheduler is not None:
@@ -95,31 +95,27 @@ def predict(
     predictions = []
     targets = []
     with torch.no_grad():
-        if verbose:
-            for data, target in test_dataloader:
-                data, target = data.to(device), target.to(device)
-                output = model(data)
-                loss = F.cross_entropy(output, target, reduction="sum")
-                test_loss += loss.item()
-                pred = output.data.max(1, keepdim=True)[1]
-                correct += pred.eq(target.data.view_as(pred)).sum()
-                predictions.append(pred.cpu())
-                targets.append(target.cpu())
-                print(
-                    f"Test set: Avg. loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_dataloader.dataset)} ({accuracy:.0f}%)"
-                )   
-            targets = torch.cat(targets).numpy().ravel()
-            val_f1_score = f1_score(predictions,targets)
-            test_loss /= len(test_dataloader.dataset)
-            accuracy = 100.0 * correct / len(test_dataloader.dataset)
-            predictions = torch.cat(predictions).numpy().ravel()
-            return test_loss, accuracy, val_f1_score, predictions
-        else:
-           data.to(device)
-           output = model(data)
-           pred = output.data.max(1, keepdim=True)[1]
-           predictions.append(pred.cpu())
-           return predictions
+        for data, target in test_dataloader:
+            data, target = data.to(device), target.to(device)
+            output = model(data)
+            loss = F.cross_entropy(output, target, reduction="sum")
+            test_loss += loss.item()
+            pred = output.data.max(1, keepdim=True)[1]
+            correct += pred.eq(target.data.view_as(pred)).sum()
+            predictions.append(pred.cpu())
+            targets.append(target.cpu())
+    targets = torch.cat(targets).numpy()
+    predictions = torch.cat(predictions).numpy()
+    test_loss /= len(test_dataloader.dataset)
+    accuracy = 100.0 * correct / len(test_dataloader.dataset)
+    f1 = f1_score(targets, predictions)
+
+    if verbose:
+        print(
+            f"Test set: Avg. loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_dataloader.dataset)} ({accuracy:.0f}%)"
+        )
+
+    return test_loss, accuracy, f1, predictions
 def visualize_images(dataloader):
     images = next(iter(dataloader))[0][:10]
     grid = torchvision.utils.make_grid(images, nrow=5, padding=10)
