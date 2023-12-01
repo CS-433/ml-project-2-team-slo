@@ -25,8 +25,6 @@ def train_epoch(
     for batch_idx, (data, target) in enumerate(train_dataloader):
         # move data and target to device
         data, target = data.to(device), target.to(device)
-        print(data.shape)
-        print(target.shape)
         # zero the parameter gradients
         optimizer.zero_grad()
 
