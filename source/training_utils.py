@@ -82,7 +82,7 @@ def fit(
         if valid_dataloader is None:
             print(f"Epoch {epoch}: Train Loss={train_loss:.4f}")
         else:
-            print(f"Epoch {epoch}: Train Loss={train_loss:.4f}, Validation Loss={valid_loss:.4f}, Validation acc={valid_acc:.4f}")
+            print(f"Epoch {epoch}: Train Loss={train_loss:.4f}, Validation Loss={valid_loss:.4f}, Validation acc={valid_acc:.4f}, Validation F1-Score: {valid_f1_score}")
     return train_losses, valid_losses, valid_accs
 
 
@@ -116,8 +116,6 @@ def predict(
         )
 
     return test_loss, accuracy, f1, predictions
-
-
 def visualize_images(dataloader):
     images = next(iter(dataloader))[0][:10]
     grid = torchvision.utils.make_grid(images, nrow=5, padding=10)
