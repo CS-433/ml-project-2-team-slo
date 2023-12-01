@@ -112,3 +112,21 @@ class ProcessingData:
         print("Permuting axis...")
         self.imgs_patches = np.transpose(self.imgs_patches, (0, 3, 1, 2))
         print("Done!")
+    
+    def balance_dataset(self):
+        """Balance the dataset."""
+        print("Balancing dataset...")
+        # Get indexes of the patches
+        index_0 = np.where(self.gt_imgs_patches == 0)[0]
+        index_1 = np.where(self.gt_imgs_patches == 1)[0]
+        # Get the number of patches
+        n_0 = len(index_0)
+        n_1 = len(index_1)
+        # Get the difference between the number of patches
+        diff = n_0 - n_1
+        # Get the indexes of the patches to remove
+        index_to_remove = np.random.choice(index_0, diff, replace=False)
+        # Remove the patches
+        self.imgs_patches = np.delete(self.imgs_patches, index_to_remove, axis=0)
+        self.gt_imgs_patches = np.delete(self.gt_imgs_patches, index_to_remove)
+        print("Done!")
