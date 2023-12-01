@@ -39,5 +39,6 @@ def load_test_datas():
         np.ndarray: The loaded images.
     """
     files = os.listdir(TEST_DIR)
-    imgs = [load_image(TEST_DIR + file + '/' + file + '.png') for file in files if not file.startswith('.')]
+    sorted_files = sorted(files, key=lambda x: int(x.split('_')[1]))
+    imgs = [load_image(TEST_DIR + file + '/' + file + '.png') for file in sorted_files if not file.startswith('.')]
     return np.asarray(imgs)
