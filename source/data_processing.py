@@ -24,7 +24,7 @@ class ProcessingData:
             gt_imgs (np.ndarray): Groundtruth images.
         """
         self.imgs = np.array(imgs)
-        if gt_imgs :
+        if gt_imgs is not None:
             self.gt_imgs = np.array(gt_imgs)
             self.imgs_patches = np.array([])
             self.gt_imgs_patches = np.array([])
@@ -54,7 +54,7 @@ class ProcessingData:
                 for j in range(len(img_patches[i]))
             ]
         )
-        if self.gt_imgs : 
+        if self.gt_imgs is not None: 
             gt_patches = [img_crop(self.gt_imgs[i], patch_size, patch_size) for i in range(len(self.imgs))]
             self.gt_imgs_patches = np.asarray(
                 [
