@@ -24,7 +24,7 @@ class Basic_CNN(nn.Module):
         # self.fc2 = nn.Linear(128, 1)
         self.fc1 = nn.Linear(64 * (patch_size // 4) * (patch_size // 4), 64)
         self.fc2 = nn.Linear(64, 1)
-        
+    
 
     def forward(self, x):
         """Forward pass."""

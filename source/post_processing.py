@@ -8,13 +8,14 @@
 # import libraries
 from PIL import Image
 import numpy as np
+import os
 
-def save_pred_as_png(sub_preds,sub_imgs,patch_size,label_to_img):
+def save_pred_as_png(sub_preds,nb_imgs,patch_size,label_to_img):
     images_filenames = []
 
-    nb_patches_per_img = len(sub_preds) // len(sub_imgs)
+    nb_patches_per_img = len(sub_preds) // nb_imgs
 
-    for i, _ in enumerate(sub_imgs):
+    for i in range(nb_imgs):
         # Assuming label_to_img returns a binary image (0s and 1s)
 
         predicted_im = label_to_img(608, 608, patch_size, patch_size, 
@@ -30,3 +31,4 @@ def save_pred_as_png(sub_preds,sub_imgs,patch_size,label_to_img):
         filename = f'output/preds_{i+1}.png'
         images_filenames.append(filename)
         predicted_img_pil.save(filename)
+    return images_filenames
