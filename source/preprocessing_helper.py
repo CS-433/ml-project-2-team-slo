@@ -64,7 +64,7 @@ def rot(image, xy, angle):
             -org[0]*np.sin(a) + org[1]*np.cos(a) ])
     return im_rot
 
-def image_generator(images, ground_truths, window_size, batch_size = 64, upsample=False):
+def image_generator(images, ground_truths, window_size,nb_batches, batch_size = 64,upsample=False):
     np.random.seed(0)
     imgWidth = images[0].shape[0]
     imgHeight = images[0].shape[1]
@@ -74,15 +74,16 @@ def image_generator(images, ground_truths, window_size, batch_size = 64, upsampl
     paddedImages = []
     for image in images:
         paddedImages.append(pad_image(image,padSize))
-    for _ in range(10):
+    X = []
+    Y = []
+    for _ in range(nb_batches):
         batch_input = []
         batch_output = [] 
         
         #rotates the whole batch for better performance
-        randomIndex = np.random.randint(0, len(images))  
+        randomIndex = np.random.randint(0, len(images))
         img = paddedImages[randomIndex]
         gt = ground_truths[randomIndex]
-        
         # rotate with probability 10 / 100
         random_rotation = 0
         if (np.random.randint(0, 100) < 10):
@@ -111,7 +112,6 @@ def image_generator(images, ground_truths, window_size, batch_size = 64, upsampl
                     center_y  - half_patch:center_y + half_patch + 2 * padSize]
             y = gt[center_x - half_patch : center_x + half_patch,
                    center_y - half_patch : center_y + half_patch]
-            
             # vertical
             if(np.random.randint(0, 2)):
                 x = np.flipud(x)
@@ -119,28 +119,34 @@ def image_generator(images, ground_truths, window_size, batch_size = 64, upsampl
             # horizontal
             if(np.random.randint(0, 2)):
                 x = np.fliplr(x)
-            
             label = 1 if (np.array([np.mean(y)]) >  constants.FOREGROUND_THRESHOLD) else 0
             
             # makes sure we have an even distribution of road and non road if we oversample
             if not upsample:
                 batch_input.append(x)
                 batch_output.append(label)
-            elif label == 1:
+            elif label == 0:
                 # case background
-                background_count += 1
                 if background_count != batch_size // 2:
                     batch_input.append(x)
                     batch_output.append(label)
+                    background_count += 1
             elif label == 1:
                 # case road
-                road_count += 1
                 if road_count != batch_size // 2:
+                    road_count += 1
                     batch_input.append(x)
                     batch_output.append(label)
                 
         batch_x = np.array( batch_input )
         batch_y = np.array( batch_output )
 
-        yield( batch_x, batch_y )    
-        
+        X.append(batch_x)
+        Y.append(batch_y)
+    X = np.array(X)
+    Y = np.array(Y)
+    X = X.reshape(-1, window_size, window_size, 3)
+    Y = Y.reshape(-1,)
+    X = X.transpose(0, 3, 1, 2)
+    return X, Y
+

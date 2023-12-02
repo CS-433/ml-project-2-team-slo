@@ -7,8 +7,10 @@
 
 # import libraries
 import numpy as np
-import torch
 from sklearn.model_selection import train_test_split
+import numpy as np
+import constants
+from scipy.ndimage import rotate
 
 # import files
 from constants import *
@@ -134,3 +136,91 @@ class ProcessingData:
         self.imgs_train = np.delete(self.imgs_train, index_to_remove, axis=0)
         self.gt_imgs_train = np.delete(self.gt_imgs_train, index_to_remove)
         print("Done!")
+    
+    def image_generator(images, ground_truths, window_size,nb_batches, batch_size = 64,upsample=False):
+        np.random.seed(0)
+        imgWidth = images[0].shape[0]
+        imgHeight = images[0].shape[1]
+        half_patch = constants.PATCH_SIZE // 2
+        
+        padSize = (window_size - constants.PATCH_SIZE) // 2
+        paddedImages = []
+        for image in images:
+            paddedImages.append(pad_image(image,padSize))
+        X = []
+        Y = []
+        for _ in range(nb_batches):
+            batch_input = []
+            batch_output = [] 
+            
+            #rotates the whole batch for better performance
+            randomIndex = np.random.randint(0, len(images))
+            print(randomIndex)  
+            img = paddedImages[randomIndex]
+            gt = ground_truths[randomIndex]
+            # rotate with probability 10 / 100
+            random_rotation = 0
+            if (np.random.randint(0, 100) < 10):
+                rotations = [90, 180, 270, 45, 135, 225, 315]
+                random_rotation = np.random.randint(0, 7)
+                img = rot(img, np.array([imgWidth+2*padSize, imgHeight+2*padSize]), rotations[random_rotation])
+                gt = rot(gt, np.array([imgWidth, imgHeight]), rotations[random_rotation]) 
+            
+            background_count = 0
+            road_count = 0
+            while len(batch_input) < batch_size:
+                x = np.empty((window_size, window_size, 3))
+                y = np.empty((window_size, window_size, 3))
+                
+                
+                # we need to limit possible centers to avoid having a window in an interpolated part of the image
+                # we limit ourselves to a square of width 1/sqrt(2) smaller
+                if(random_rotation > 2):
+                    boundary = int((imgWidth - imgWidth / np.sqrt(2)) / 2)
+                else:
+                    boundary = 0
+                center_x = np.random.randint(half_patch + boundary, imgWidth  - half_patch - boundary)
+                center_y = np.random.randint(half_patch + boundary, imgHeight - half_patch - boundary)
+                
+                x = img[center_x - half_patch:center_x + half_patch + 2 * padSize,
+                        center_y  - half_patch:center_y + half_patch + 2 * padSize]
+                y = gt[center_x - half_patch : center_x + half_patch,
+                    center_y - half_patch : center_y + half_patch]
+                
+                # vertical
+                if(np.random.randint(0, 2)):
+                    x = np.flipud(x)
+                
+                # horizontal
+                if(np.random.randint(0, 2)):
+                    x = np.fliplr(x)
+                label = 1 if (np.array([np.mean(y)]) >  constants.FOREGROUND_THRESHOLD) else 0
+                
+                # makes sure we have an even distribution of road and non road if we oversample
+                if not upsample:
+                    batch_input.append(x)
+                    batch_output.append(label)
+                elif label == 0:
+                    # case background
+                    if background_count != batch_size // 2:
+                        batch_input.append(x)
+                        batch_output.append(label)
+                        background_count += 1
+                elif label == 1:
+                    # case road
+                    if road_count != batch_size // 2:
+                        road_count += 1
+                        batch_input.append(x)
+                        batch_output.append(label)
+                    
+            batch_x = np.array( batch_input )
+            batch_y = np.array( batch_output )
+
+            X.append(batch_x)
+            Y.append(batch_y)
+        X = np.array(X)
+        Y = np.array(Y)
+        X = X.reshape(-1, window_size, window_size, 3)
+        Y = Y.reshape(-1,)
+        X = X.transpose(0, 3, 1, 2)
+        return X, Y

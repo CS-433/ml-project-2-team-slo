@@ -22,13 +22,9 @@ def load_datas(nb_img):
     """
     files = os.listdir(IMAGE_DIR)
     n = min(nb_img, len(files))
-    print("Loading " + str(n) + " images")
     imgs = [load_image(IMAGE_DIR + files[i]) for i in range(n)]
-    print(files[0])
-
-    print("Loading " + str(n) + " images")
     gt_imgs = [load_image(GT_DIR + files[i]) for i in range(n)]
-    print(files[0])
+    
     return np.asarray(imgs), np.asarray(gt_imgs)
 
 def load_test_datas():
@@ -39,6 +35,8 @@ def load_test_datas():
         np.ndarray: The loaded images.
     """
     files = os.listdir(TEST_DIR)
+    if '.DS_Store' in files:
+        files.remove('.DS_Store')
     sorted_files = sorted(files, key=lambda x: int(x.split('_')[1]))
     imgs = [load_image(TEST_DIR + file + '/' + file + '.png') for file in sorted_files if not file.startswith('.')]
     return np.asarray(imgs)
