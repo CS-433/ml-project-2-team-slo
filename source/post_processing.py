@@ -9,7 +9,7 @@
 from PIL import Image
 import numpy as np
 
-def save_pred_as_png(sub_preds,sub_imgs,patch_size,label_to_img):
+def save_pred_as_png(sub_preds, sub_imgs, patch_size, label_to_img):
     images_filenames = []
 
     nb_patches_per_img = len(sub_preds) // len(sub_imgs)

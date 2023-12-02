@@ -21,11 +21,14 @@ def train_epoch(
     """
 
     running_loss = 0.0
-    model = model.to(device)
+    # model = model.to(device)
+    print("Training...")
     model.train()
     for batch_idx, (data, target) in enumerate(train_dataloader):
         # move data and target to device
-        data, target = data.to(device), target.to(device)
+        # data, target = data.to(device), target.to(device)
+        target = torch.tensor(target, dtype=torch.long)
+        target = target.clone().detach()
         # zero the parameter gradients
         optimizer.zero_grad()
 
@@ -43,7 +46,7 @@ def train_epoch(
 
         # print statistics
         running_loss += loss.item()
-
+    
     return running_loss / len(train_dataloader)
 
 def fit(
@@ -116,6 +119,23 @@ def predict(
         )
 
     return test_loss, accuracy, f1, predictions
+
+
+def predict_test_set(
+    model: nn.Module, test_dataloader: DataLoader, device: torch.device
+):
+    model.eval()
+    predictions = []
+    with torch.no_grad():
+        for data in test_dataloader:
+            data = data.to(device)
+            output = model(data)
+            pred = output.data.max(1, keepdim=True)[1]
+            predictions.append(pred.cpu())
+    predictions = torch.cat(predictions).numpy()
+    return predictions
+
+
 def visualize_images(dataloader):
     images = next(iter(dataloader))[0][:10]
     grid = torchvision.utils.make_grid(images, nrow=5, padding=10)
@@ -127,20 +147,20 @@ def visualize_images(dataloader):
     show(grid)
 
 def plot_losses(train_losses_all,validate_losses_all,all_in_one=True):
-  for i, (train_loss, validate_loss) in enumerate(zip(train_losses_all, validate_losses_all)):
-    plt.plot(train_loss, '-*',label = 'train, model ' + str(i+1))
-    plt.plot(validate_loss,'-*', label = 'validate, model '+str(i+1))
+    for i, (train_loss, validate_loss) in enumerate(zip(train_losses_all, validate_losses_all)):
+        plt.plot(train_loss, '-*',label = 'train, model ' + str(i+1))
+        plt.plot(validate_loss,'-*', label = 'validate, model '+str(i+1))
     if not all_in_one:
-      plt.title("Loss progression across epochs")
-      plt.xlabel("Epochs")
-      plt.ylabel("Loss")
-      plt.legend()
-      plt.semilogy()
-      plt.show()
-  if all_in_one:
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.legend()
-    plt.semilogy()
-    plt.title("Loss progression across epochs")
-    plt.show()
+        plt.title("Loss progression across epochs")
+        plt.xlabel("Epochs")
+        plt.ylabel("Loss")
+        plt.legend()
+        plt.semilogy()
+        plt.show()
+    if all_in_one:
+        plt.xlabel("Epochs")
+        plt.ylabel("Loss")
+        plt.legend()
+        plt.semilogy()
+        plt.title("Loss progression across epochs")
+        plt.show()
