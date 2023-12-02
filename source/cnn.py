@@ -88,5 +88,5 @@ class Basic_CNN(nn.Module):
               output = (output > FOREGROUND_THRESHOLD).float()
               predictions.append(output.cpu())  # Move predictions back to CPU
 
-      return torch.cat(predictions).numpy()
+      return torch.cat(predictions).numpy().ravel()
 
