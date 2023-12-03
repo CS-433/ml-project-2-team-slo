@@ -16,8 +16,7 @@ Road Segmentation
 
 - [Abstract](#abstract)
 - [Project Structure](#project-structure)
-- [Data Wrangling](#Data-Wrangling)
-- [Contributing](#contributing)
+- [Data Wrangling](#data-wrangling)
 - [Models](#models)
 - [Results](#results)
 
@@ -28,7 +27,8 @@ The purpose of this project is to create a binary classifier that is able to rec
 *The color of the roads is very similar to the one of sidewalk or parking area
    These problems will be discussed in the following sections.
 
-## Project stucture
+## Project structure
+```
 .
 ├── README.md
 ├── data
@@ -60,7 +60,7 @@ The purpose of this project is to create a binary classifier that is able to rec
     ├── segment_aerial_images.ipynb
     ├── submission_to_mask.py
     └── tf_aerial_images.py
-
+```
 
 
 The best solution can be run using the `run.py` file, in the source folder. The main results and the steps that leads to this solutions can be found in the main juypter notebook.
@@ -71,7 +71,7 @@ The datas consist of a set of 100 RGB images of size 400x400 pixels, comming wit
 ## Data processing
 
 To solve the problems mentionned in the abstract, the following solutions are proposed:</p>
-* The color is normalized in order to obtain a homogeneous color around the training set.
+* The color is normalized in order to obtain homogeneous RGB images for the training set.
 * The datas are balanced to obtain an even distribution of road/background.
 
 ## Models
