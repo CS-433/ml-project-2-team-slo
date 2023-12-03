@@ -6,34 +6,46 @@ from helpers import *
 class Basic_CNN(nn.Module):
     def __init__(self, patch_size):
         """Constructor."""
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         super(Basic_CNN, self).__init__()
+
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, stride=1, padding=1)
-        self.relu1 = nn.ReLU()
+        self.relu1 = nn.LeakyReLU(0.1)
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
-        self.relu2 = nn.ReLU()
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1)
+        self.dropout1 = nn.Dropout(0.1)
+        self.relu2 = nn.LeakyReLU(0.1)
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1)
-        # self.relu3 = nn.ReLU()
-        # self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.conv3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
+        self.relu3 = nn.LeakyReLU(0.1)
+        self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # self.fc1 = nn.Linear(128 * (patch_size // 8) * (patch_size // 8), 128)
+        self.conv4 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1)
+        self.dropout2 = nn.Dropout(0.1)
+        self.relu4 = nn.LeakyReLU(0.1)
+
+        # self.flatten = nn.Flatten()
+
+        # self.fc1 = nn.Linear(128 * (patch_size // 8) * (patch_size // 8), 1)
         # self.fc2 = nn.Linear(128, 1)
-        self.fc1 = nn.Linear(64 * (patch_size // 4) * (patch_size // 4), 64)
-        self.fc2 = nn.Linear(64, 1)
+        
+
+        self.fc1 = nn.Linear(64 * (patch_size // 8) * (patch_size // 8), 1)
+        # self.fc2 = nn.Linear(64, 1)
     
 
     def forward(self, x):
         """Forward pass."""
         x = self.pool1(self.relu1(self.conv1(x)))
-        x = self.pool2(self.relu2(self.conv2(x)))
-        # x = self.pool3(self.relu3(self.conv3(x)))
+        x = self.pool2(self.relu2(self.dropout1(self.conv2(x))))
+        x = self.pool3(self.relu3(self.conv3(x)))
+        x = self.relu4(self.dropout2(self.conv4(x)))
         x = x.view(x.size(0), -1)
         x = self.fc1(x)
-        x = self.fc2(x)
+        # x = self.fc2(x)
         return x
 
     
@@ -50,9 +62,7 @@ class Basic_CNN(nn.Module):
                 loss = criterion(output, target)
                 loss.backward()
                 optimizer.step()
-                
-            # Step the scheduler after each epoch
-            scheduler.step()
+
             # Validation loop
             self.eval()
             # Disable gradient calculation for validation
@@ -75,6 +85,8 @@ class Basic_CNN(nn.Module):
                 accuracy = total_correct / len(val_loader.dataset)
                 f1 = f1_score(torch.cat(tot_preds).cpu().numpy(), torch.cat(tot_targets).cpu().numpy())
                 print(f'Epoch {epoch+1}/{num_epochs}, Loss: {test_loss}, Validation Accuracy: {accuracy:.4f}, F1 score: {f1:.4f}')
+            
+            scheduler.step(test_loss)
 
 
     def predict(self, test_loader):
