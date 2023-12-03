@@ -22,16 +22,11 @@ Road Segmentation
 - [Results](#results)
 
 ## Abstract 
-<div style="text-align: justify;">
-   <p>The purpose of this project is to create a binary classifier that is able to recognize roads from Google maps satellite images. This kind of task is very common in image classification and computer vision. This repository presents solutions addressed to solve this problem. The major issues that have to be handled are the following:</p>
-
-   <ul>
-      <li>The datas are not well balanced : only 25% of the datas are roads</li>
-      <li>Roads are majoritary vertical or horizontal</li>
-      <li>The color of the roads is very similar to the one of sidewalk or parking area </li>
-   </ul>
-   <p> These problems will be discussed in the following sections.
-</div>
+The purpose of this project is to create a binary classifier that is able to recognize roads from Google maps satellite images. This kind of task is very common in image classification and computer vision. This repository presents solutions addressed to solve this problem. The major issues that have to be handled are the following:
+*The datas are not well balanced : only 25% of the datas are roads</li>
+*Roads are majoritary vertical or horizontal</li>
+*The color of the roads is very similar to the one of sidewalk or parking area </li>
+   These problems will be discussed in the following sections.
 
 ## Project stucture
 ├── README.md
@@ -65,25 +60,16 @@ Road Segmentation
     ├── submission_to_mask.py
     └── tf_aerial_images.py
 
-<div style="text-align: justify;">
 The best solution can be run using the `run.py` file, in the source folder. The main results and the steps that leads to this solutions can be found in the main juypter notebook.
-</div>
 
 ## Data wrangling
-<div style="text-align: justify;">
 The datas consist of a set of 100 RGB images of size 400x400 pixels, comming with the correspond label images. The first step is to convert the images to arrays that can be used later on. The predictions are done on patches of size 16x16 pixels. The groundtruth images have to be croped to paches of this size. The corresponding images have to be croped the same way. 
-</div>
 
 ## Data processing
-<div style="text-align: justify;">
-   <p>To solve the problems mentionned in the abstract, the following solutions are proposed:</p>
 
-   <ul>
-        <li> The color is normalized in order to obtain a homogeneous color around the training set.
-        <li> The datas are balanced to obtain an even distribution of road/background.
-   </ul>
-   <p>
-</div>
+To solve the problems mentionned in the abstract, the following solutions are proposed:</p>
+* The color is normalized in order to obtain a homogeneous color around the training set.
+* The datas are balanced to obtain an even distribution of road/background.
 
 ## Models
 
