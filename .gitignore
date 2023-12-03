@@ -110,4 +110,4 @@ ENV/
 .gz
 data/
 Output/
-.csv
+*.csv

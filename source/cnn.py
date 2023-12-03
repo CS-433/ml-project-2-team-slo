@@ -37,7 +37,7 @@ class Basic_CNN(nn.Module):
         return x
 
     
-    def train_model(self, optimizer, criterion, train_loader, val_loader, num_epochs=10):
+    def train_model(self, optimizer, scheduler, criterion, train_loader, val_loader, num_epochs=10):
         """Train the model."""
         self.to(self.device)
         for epoch in range(num_epochs):
@@ -50,7 +50,9 @@ class Basic_CNN(nn.Module):
                 loss = criterion(output, target)
                 loss.backward()
                 optimizer.step()
-        
+                
+            # Step the scheduler after each epoch
+            scheduler.step()
             # Validation loop
             self.eval()
             # Disable gradient calculation for validation
@@ -88,5 +90,5 @@ class Basic_CNN(nn.Module):
               output = (output > FOREGROUND_THRESHOLD).float()
               predictions.append(output.cpu())  # Move predictions back to CPU
 
-      return torch.cat(predictions).numpy()
+      return torch.cat(predictions).numpy().ravel()
 
