@@ -16,13 +16,18 @@ TEST_DIR = ROOT_DIR + "test_set_images/"
 IMAGE_DIR = os.path.join(TRAIN_DIR, "images/")
 GT_DIR = TRAIN_DIR + "groundtruth/"
 
-#Image size
+#Image parameters
 PATCH_SIZE = 16
+NUM_CHANNELS = 3
 
 #Training parameters
 NB_IMAGES_MAX = len(os.listdir(IMAGE_DIR))
 NB_IMAGES = 10
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 FOREGROUND_THRESHOLD = 0.25
-TEST_SIZE = 0.2
-VALIDATION_SIZE = 0.3
+#DATA SIZE
+TEST_RATIO = 0.1
+VALIDATION_RATIO = 0.3
+TRAIN_SAMPLES= 10000
+TEST_SAMPLES = TRAIN_SAMPLES * TEST_RATIO
+VALIDATION_SAMPLES = TRAIN_SAMPLES * VALIDATION_RATIO

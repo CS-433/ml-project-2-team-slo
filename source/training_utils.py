@@ -131,32 +131,3 @@ def predict_test_set(
             predictions.append(pred.cpu())
     predictions = torch.cat(predictions).numpy()
     return predictions
-
-def visualize_images(dataloader):
-    images = next(iter(dataloader))[0][:10]
-    grid = torchvision.utils.make_grid(images, nrow=5, padding=10)
-
-    def show(img):
-        npimg = img.numpy()
-        plt.imshow(np.transpose(npimg, (1, 2, 0)), interpolation="nearest")
-
-    show(grid)
-
-def plot_losses(train_losses_all,validate_losses_all,all_in_one=True):
-  for i, (train_loss, validate_loss) in enumerate(zip(train_losses_all, validate_losses_all)):
-    plt.plot(train_loss, '-*',label = 'train, model ' + str(i+1))
-    plt.plot(validate_loss,'-*', label = 'validate, model '+str(i+1))
-    if not all_in_one:
-      plt.title("Loss progression across epochs")
-      plt.xlabel("Epochs")
-      plt.ylabel("Loss")
-      plt.legend()
-      plt.semilogy()
-      plt.show()
-  if all_in_one:
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.legend()
-    plt.semilogy()
-    plt.title("Loss progression across epochs")
-    plt.show()
