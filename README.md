@@ -29,36 +29,39 @@ The purpose of this project is to create a binary classifier that is able to rec
    These problems will be discussed in the following sections.
 
 ## Project stucture
+.
 ├── README.md
 ├── data
-│   ├── images_report
-│   ├── others
-│   ├── sample_submission.csv
-│   ├── submission
-│   ├── test_set_images
-│   ├── test_set_images.zip
-│   ├── training
-│   ├── training.zip
-│   └── untitled folder
+│   ├── images_report
+│   ├── others
+│   ├── sample_submission.csv
+│   ├── submission
+│   ├── test_set_images
+│   │   ├── test_set_images.zip
+│   └── training
+│       ├── training.zip
+│       └── untitled folder
 ├── source
-│   ├── basic_model.py
-│   ├── cnn.py
-│   ├── constants.py
-│   ├── data_augmentation.py
-│   ├── data_processing.py
-│   ├── helpers.py
-│   ├── load_datas.py
-│   ├── main.ipynb
-│   ├── post_processing.py
-│   ├── submission.csv
-│   ├── training_utils.py
-│   └── visualization.py
+│   ├── basic_model.py
+│   ├── cnn.py
+│   ├── constants.py
+│   ├── data_augmentation.py
+│   ├── data_processing.py
+│   ├── helpers.py
+│   ├── load_datas.py
+│   ├── main.ipynb
+│   ├── post_processing.py
+│   ├── submission.csv
+│   ├── training_utils.py
+│   └── visualization.py
 └── template
     ├── mask_to_submission.py
     ├── notes.md
     ├── segment_aerial_images.ipynb
     ├── submission_to_mask.py
     └── tf_aerial_images.py
+
+
 
 The best solution can be run using the `run.py` file, in the source folder. The main results and the steps that leads to this solutions can be found in the main juypter notebook.
 
