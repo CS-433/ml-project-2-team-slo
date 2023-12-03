@@ -27,12 +27,6 @@ class Basic_CNN(nn.Module):
         self.dropout2 = nn.Dropout(0.1)
         self.relu4 = nn.LeakyReLU(0.1)
 
-        # self.flatten = nn.Flatten()
-
-        # self.fc1 = nn.Linear(128 * (patch_size // 8) * (patch_size // 8), 1)
-        # self.fc2 = nn.Linear(128, 1)
-        
-
         self.fc1 = nn.Linear(64 * (patch_size // 8) * (patch_size // 8), 1)
         # self.fc2 = nn.Linear(64, 1)
     
