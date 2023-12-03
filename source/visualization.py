@@ -23,6 +23,14 @@ def visualize(imgs, gt_imgs, index=0):
     fig1 = plt.figure(figsize=(10, 10))
     plt.imshow(cimg, cmap="Greys_r")
 
+def visualize_patch(img):
+    """ Visualize a patch.
+    Args:
+        img: Image.
+    """
+    fig1 = plt.figure(figsize=(10, 10))
+    plt.imshow(img, cmap="Greys_r")
+
 def visualize_solution(img,imgwidth,imgheight,prediction):
     """Visualize an image and the predicted groundtruth.
     Args:
