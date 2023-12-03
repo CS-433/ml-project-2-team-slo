@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./data/others/logo-epfl.png" alt="Example Image" width="192" height="108">
+<img src="./resources/logo-epfl.png" alt="Example Image" width="192" height="108">
 </div>
 
 <div align="center">
