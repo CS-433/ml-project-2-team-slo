@@ -1,17 +1,15 @@
-from typing import Optional
+# -*- coding: utf-8 -*-
+# -*- author : Vincent -*-
+# -*- date : 2023-11-25 -*-
+# -*- Last revision: 2023-12-02 -*-
+# -*- python version : 3.11.6 -*-
+# -*- Residual network module -*-
+
+#import files
 import torch.nn.functional as F
-import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader
-from torchvision.transforms import ToTensor
-from torchvision.datasets import ImageFolder
-from torchvision.models import vgg19
 
-import constants
-from preprocessing_helper import *
-from postprocessing_helper import *
-
+# Residual network module
 class CorrectBlock(nn.Module):
     def __init__(self, in_planes, planes, stride=1):
         super().__init__()
@@ -83,74 +81,3 @@ class ResNet(nn.Module):
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
-def train_epoch(
-    model: nn.Module,
-    train_dataloader: DataLoader,
-    optimizer: torch.optim.Optimizer,
-    device: torch.device,
-):
-
-    running_loss = 0.0
-    model = model.to(device)
-    model.train()
-    for batch_idx, (data, target) in enumerate(train_dataloader):
-        # move data and target to device
-        data, target = data.to(device), target.to(device)
-        # zero the parameter gradients
-        optimizer.zero_grad()
-
-        # do the forward pass
-        output = model(data)
-
-        # compute the loss
-        loss = F.cross_entropy(output, target)
-
-        # compute the gradients
-        loss.backward()
-
-        # perform the gradient step
-        optimizer.step()
-
-        # print statistics
-        running_loss += loss.item()
-
-    return running_loss / len(train_dataloader)
-
-def fit(
-    model: nn.Module,
-    train_dataloader: DataLoader,
-    optimizer: torch.optim.Optimizer,
-    epochs: int,
-    device: torch.device,
-    valid_dataloader: Optional[DataLoader]=None,
-    scheduler: Optional[torch.optim.lr_scheduler.ReduceLROnPlateau] = None):
-    '''
-    the fit method simply calls the train_epoch() method for a
-    specified number of epochs.
-    '''
-
-    # keep track of the losses in order to visualize them later
-    # Train for numerous epochs:
-    train_losses = []
-    valid_losses = []
-    valid_accs = []
-    for epoch in range(epochs):
-        train_loss = train_epoch(
-            model=model,
-            train_dataloader=train_dataloader,
-            optimizer=optimizer,
-            device=device
-        )
-        train_losses.append(train_loss)
-
-        if valid_dataloader is not None:
-            valid_loss, valid_acc, f1, _= predict(model, valid_dataloader, device, verbose=False)
-            valid_losses.append(valid_loss)
-            valid_accs.append(valid_acc)
-        if scheduler is not None:
-          scheduler.step(train_loss)
-        if valid_dataloader is None:
-            print(f"Epoch {epoch}: Train Loss={train_loss:.4f}")
-        else:
-            print(f"Epoch {epoch}: Train Loss={train_loss:.4f}, Validation Loss={valid_loss:.4f}, Validation acc={valid_acc:.4f}, Validation F1-Score: {f1}")
-    return train_losses, valid_losses, valid_accs
