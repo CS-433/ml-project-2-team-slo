@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# -*- author : fabio Palmisano - Yannis Laaroussi -*-
+# -*- author : Fabio Palmisano - Yannis Laaroussi -*-
 # -*- date : 2023-11-25 -*-
 # -*- Last revision: 2023-12-01 -*-
 # -*- python version : 3.11.6 -*-
