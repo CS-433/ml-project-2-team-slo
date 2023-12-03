@@ -8,11 +8,10 @@ Ecole Polytechnique Fédérale de Lausanne
 <div align="center">
 CS-433 Machine Learning
 </div> 
-<div align="center">
-Road Segmentation
-</div> 
 
-# Table of Contents
+# Road segmentation from satellite images
+
+## Table of Contents
 
 - [Abstract](#abstract)
 - [Project Structure](#project-structure)
