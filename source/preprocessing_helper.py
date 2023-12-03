@@ -25,23 +25,47 @@ def img_crop(im, w, h):
             list_patches.append(im_patch)
     return list_patches
 
-def create_windows(im, window_size):
+def create_windows(images, window_size):
     list_patches = []
-    is_2d = len(im.shape) < 3
-    imgwidth = im.shape[0]
-    imgheight = im.shape[1]
-    padSize = (window_size - constants.PATCH_SIZE)//2
-    padded = pad_image(im, padSize)
-    print(padded.shape)
-    for i in range(padSize, imgheight + padSize, constants.PATCH_SIZE):
-        for j in range(padSize,imgwidth + padSize, constants.PATCH_SIZE):
-            if is_2d:
+    for im in images:
+        is_2d = len(im.shape) < 3
+        imgwidth = im.shape[0]
+        imgheight = im.shape[1]
+        padSize = (window_size - constants.PATCH_SIZE)//2
+        padded = pad_image(im, padSize)
+        for i in range(padSize, imgheight + padSize, constants.PATCH_SIZE):
+            for j in range(padSize,imgwidth + padSize, constants.PATCH_SIZE):
+                if is_2d:               
+                    im_patch = padded[j-padSize:j+constants.PATCH_SIZE+padSize, i-padSize:i+constants.PATCH_SIZE+padSize]
+                else:
+                    im_patch = padded[j-padSize:j+constants.PATCH_SIZE+padSize, i-padSize:i+constants.PATCH_SIZE+padSize, :]
+                list_patches.append(im_patch)
+    list_patches = np.asarray(list_patches)
+    return np.transpose(list_patches, (0, 3, 1, 2))
+
+def create_windows_gt(images, gt_images, window_size):
+    list_patches = []
+    list_labels = []
+    for im, gt in zip(images, gt_images):
+        is_2d = len(im.shape) < 3
+        imgwidth = im.shape[0]
+        imgheight = im.shape[1]
+        padSize = (window_size - constants.PATCH_SIZE)//2
+        padded_im = pad_image(im, padSize)
+        padded_gt = pad_image(gt, padSize)
+        for i in range(padSize, imgheight + padSize, constants.PATCH_SIZE):
+            for j in range(padSize,imgwidth + padSize, constants.PATCH_SIZE):
+                if is_2d:               
+                    im_patch = padded_im[j-padSize:j+constants.PATCH_SIZE+padSize, i-padSize:i+constants.PATCH_SIZE+padSize]   
+                else:
+                    im_patch = padded_im[j-padSize:j+constants.PATCH_SIZE+padSize, i-padSize:i+constants.PATCH_SIZE+padSize, :]
+    
+                label = 1 if (np.mean(padded_gt[j:j+constants.PATCH_SIZE, i:i+constants.PATCH_SIZE]) >  constants.FOREGROUND_THRESHOLD) else 0
+                list_patches.append(im_patch)
+                list_labels.append(label)
                 
-                im_patch = padded[j-padSize:j+constants.PATCH_SIZE+padSize, i-padSize:i+constants.PATCH_SIZE+padSize]
-            else:
-                im_patch = padded[j-padSize:j+constants.PATCH_SIZE+padSize, i-padSize:i+constants.PATCH_SIZE+padSize, :]
-            list_patches.append(im_patch)
-    return list_patches
+    list_patches = np.asarray(list_patches)
+    return np.transpose(list_patches, (0, 3, 1, 2)), np.asarray(list_labels)
 
 #pad an image 
 def pad_image(img, padSize):
