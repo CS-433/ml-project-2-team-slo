@@ -23,9 +23,9 @@ Road Segmentation
 
 ## Abstract 
 The purpose of this project is to create a binary classifier that is able to recognize roads from Google maps satellite images. This kind of task is very common in image classification and computer vision. This repository presents solutions addressed to solve this problem. The major issues that have to be handled are the following:
-*The datas are not well balanced : only 25% of the datas are roads</li>
-*Roads are majoritary vertical or horizontal</li>
-*The color of the roads is very similar to the one of sidewalk or parking area </li>
+*The datas are not well balanced : only 25% of the datas are roads
+*Roads are majoritary vertical or horizontal
+*The color of the roads is very similar to the one of sidewalk or parking area
    These problems will be discussed in the following sections.
 
 ## Project stucture
