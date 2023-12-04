@@ -88,10 +88,10 @@ def f1_score(preds, targets):
     tp = np.sum(preds * targets)
     fp = np.sum(preds * (1 - targets))
     fn = np.sum((1 - preds) * targets)
-    precision = tp / (tp + fp)
-    recall = tp / (tp + fn)
+    precision = tp / (tp + fp) if tp + fp > 0 else np.nan
+    recall = tp / (tp + fn) if tp + fn > 0 else np.nan
     if precision + recall == 0:
-        return 0
+        return np.nan
     return 2 * (precision * recall) / (precision + recall)
 
 

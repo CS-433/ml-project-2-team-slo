@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 # -*- author : Vincent Roduit -*-
 # -*- date : 2023-11-25 -*-
-# -*- Last revision: 2023-11-35 -*-
+# -*- Last revision: 2023-12-03 -*-
 # -*- python version : 3.11.6 -*-
 # -*- Regroup all the constants used -*-
 
 #import files
 import os
+import torch
 
 #File paths
 ROOT_DIR = "../data/"
@@ -15,13 +16,21 @@ TEST_DIR = ROOT_DIR + "test_set_images/"
 IMAGE_DIR = os.path.join(TRAIN_DIR, "images/")
 GT_DIR = TRAIN_DIR + "groundtruth/"
 
-NB_IMAGES_MAX = len(os.listdir(IMAGE_DIR))
-NB_IMAGES = 10
-
-#Image size
+#Image parameters
 PATCH_SIZE = 16
+NUM_CHANNELS = 3
 
 #Training parameters
-FOREGROUND_THRESHOLD = 0.3
-TEST_SIZE = 0.2
-VALIDATION_SIZE = 0.3
+NB_IMAGES_MAX = len(os.listdir(IMAGE_DIR))
+NB_IMAGES = 10
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+FOREGROUND_THRESHOLD = 0.25
+NUM_WORKERS = 2 if torch.cuda.is_available() else 0
+WINDOW_SIZE = 80
+#DATA SIZE
+TEST_RATIO = 0.1
+VALIDATION_RATIO = 0.3
+TRAIN_SAMPLES= 30000
+BATCH_SIZE = 32
+TEST_SAMPLES = int(TRAIN_SAMPLES * TEST_RATIO)
+VALIDATION_SAMPLES = int(TRAIN_SAMPLES * VALIDATION_RATIO)

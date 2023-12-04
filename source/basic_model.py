@@ -1,75 +1,83 @@
 # -*- coding: utf-8 -*-
-# -*- author : Vincent Roduit -*-
+# -*- author : Vincent -*-
 # -*- date : 2023-11-25 -*-
-# -*- Last revision: 2023-11-25 -*-
+# -*- Last revision: 2023-12-02 -*-
 # -*- python version : 3.11.6 -*-
-# -*- Description: Basic model implementation-*-
+# -*- Residual network module -*-
 
-#import libraiies
-import torch
+#import files
+import torch.nn.functional as F
+import torch.nn as nn
 
-#Define the model
-class LeNet(torch.nn.Module):
-    def __init__(self):
-        """Initialize the network"""
-        super(LeNet, self).__init__()
-        self.conv1 = torch.nn.Conv2d(in_channels=3, out_channels=6, kernel_size=5)
-        self.avgpool1 = torch.nn.AvgPool2d(kernel_size=2, stride=2)
-        self.conv2 = torch.nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5)
-        self.avgpool2 = torch.nn.AvgPool2d(kernel_size=2, stride=2)
-        self.fc1 = torch.nn.Linear(16 * 4 * 4, 120)
-        self.fc2 = torch.nn.Linear(120, 84)
-        self.fc3 = torch.nn.Linear(84, 10)
+# Residual network module
+class CorrectBlock(nn.Module):
+    def __init__(self, in_planes, planes, stride=1):
+        super().__init__()
+        self.conv1 = nn.Conv2d(
+            in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False
+        )
+        self.bn1 = nn.BatchNorm2d(planes)
+        self.conv2 = nn.Conv2d(
+            planes, planes, kernel_size=3, stride=1, padding=1, bias=False
+        )
+        self.bn2 = nn.BatchNorm2d(planes)
+
+        self.shortcut = nn.Sequential()
+        if stride != 1 or in_planes != planes:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_planes, planes, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(planes),
+            )
 
     def forward(self, x):
-        """Forward path"""
-        x = torch.nn.functional.relu(self.conv1(x))
-        x = self.avgpool1(x)
-        x = torch.nn.functional.relu(self.conv2(x))
-        x = self.avgpool2(x)
-        x = x.view(x.size(0), -1)
-        x = torch.nn.functional.relu(self.fc1(x))
-        x = torch.nn.functional.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
+        out = F.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        out += self.shortcut(x)
+        out = F.relu(out)
+        return out
 
-    
-    def fit(self, X,y):
-        """Fit datas to the model"""
-        self.X_train = X
-        self.y_train = y
 
-    def accuracy(predicted_logits, reference):
-        """
-        Compute the ratio of correctly predicted labels
-        """
-        labels = torch.argmax(predicted_logits, 1)
-        correct_predictions = labels.eq(reference)
-        return correct_predictions.sum().float() / correct_predictions.nelement()
+class ResNet(nn.Module):
+    def __init__(self, block, num_blocks, num_classes=2):
+        super().__init__()
+        self.in_planes = 64
 
-    def train(self,criterion, X_test, y_test, optimizer, num_epochs,device):
-        """Train de model"""
-        for epoch in range(num_epochs):
-            self.X_train, self.y_train = self.X_train.to(device), self.y_train.to(device)
-            prediction = self.forward(self.X_train)
-            loss = criterion(prediction, self.y_train)
+        # Adjust the input channels to match the input size (3 channels)
+        self.conv1 = nn.Conv2d(
+            3, 64, kernel_size=3, stride=1, padding=1, bias=False
+        )
+        self.bn1 = nn.BatchNorm2d(64)
+        self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=1)
+        self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
+        self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
+        self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
 
-            # Compute the gradient
-            optimizer.zero_grad()
-            loss.backward()
+        # Adjust the pooling size to match the input size
+        self.avg_pool = nn.AvgPool2d(4)
 
-            # Update the parameters of the model with a gradient step
-            optimizer.step()
-            LeNet.eval()
-            accuracies_test = []
-            X_test, y_test = X_test.to(device), y_test.to(device)
+        self.linear = nn.Linear(512, num_classes)
 
-            # Evaluate the network (forward pass)
-            prediction = self.forward(X_test)
-            accuracies_test.append(self.accuracy(prediction, y_test))
+    def _make_layer(self, block, planes, num_blocks, stride):
+        strides = [stride] + [1] * (num_blocks - 1)
+        layers = []
+        for stride in strides:
+            layers.append(block(self.in_planes, planes, stride))
+            self.in_planes = planes
+        return nn.Sequential(*layers)
 
-            print(
-                "Epoch {} | Test accuracy: {:.5f}".format(
-                    epoch, sum(accuracies_test).item() / len(accuracies_test)
-                )
-            )
+    def forward(self, x):
+        out = F.relu(self.bn1(self.conv1(x)))
+        out = self.layer1(out)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
+
+        # Check if the input size is smaller than the kernel size of the average pooling layer
+        if out.size(-1) < 4 or out.size(-2) < 4:
+            out = F.adaptive_avg_pool2d(out, (1, 1))
+        else:
+            out = self.avg_pool(out)
+
+        out = out.view(out.size(0), -1)
+        out = self.linear(out)
+        return out

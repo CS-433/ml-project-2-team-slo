@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 # -*- author : Vincent Roduit -*-
 # -*- date : 2023-11-25 -*-
-# -*- Last revision: 2023-11-35 -*-
+# -*- Last revision: 2023-12-03 -*-
 # -*- python version : 3.11.6 -*-
 # -*- Class to process all datas -*-
 
 # import libraries
 import numpy as np
-import torch
 from sklearn.model_selection import train_test_split
+import numpy as np
+from torch.utils.data import DataLoader
 
 # import files
-from constants import *
+import constants
 from helpers import *
+from preprocessing_helper import *
+from load_datas import load_datas
 
-class ProcessingData:
-    """Class to process all datas."""
+class BasicProcessing:
+    """Class to process all datas. All the attributes are numpy arrays."""
 
     def __init__(self, imgs, gt_imgs = None):
         """Constructor.
@@ -38,7 +41,7 @@ class ProcessingData:
             self.gt_imgs = None
 
     
-    def create_patches(self, patch_size=PATCH_SIZE):
+    def create_patches(self, patch_size=constants.PATCH_SIZE):
         """Create patches from the images.
         Args:
             PATCH_SIZE (int): Size of the patch.
@@ -66,7 +69,7 @@ class ProcessingData:
         print("Done!")
     
 
-    def create_labels(self, threshold=FOREGROUND_THRESHOLD):
+    def create_labels(self, threshold=constants.FOREGROUND_THRESHOLD):
         """Create labels from the patches.
         Args:
             FOREGROUND_THRESHOLD (float): Threshold to determine if a patch is foreground or background.
@@ -81,33 +84,151 @@ class ProcessingData:
         print("Done!")
 
 
-    def create_sets(self, validation_size=VALIDATION_SIZE, test_size=TEST_SIZE):
+    def create_sets(self, validation_size=constants.VALIDATION_RATIO, test_size=constants.TEST_RATIO):
         """Split the data into train, test and validation sets.
         Args:
             VALIDATION_SIZE (float): Size of the validation set.
             TEST_SIZE (float): Size of the test set.
         """
         print("Splitting data...")
-        tmp_x, self.imgs_validation, tmp_y, self.gt_imgs_validation  = train_test_split(
-            self.imgs_patches, self.gt_imgs_patches, test_size=validation_size, random_state=42
+        tmp_x, self.imgs_test, tmp_y, self.gt_imgs_test  = train_test_split(
+            self.imgs_patches, self.gt_imgs_patches, test_size=test_size, random_state=42
         )
-        self.imgs_train, self.imgs_test, self.gt_imgs_train, self.gt_imgs_test = train_test_split(
-            tmp_x, tmp_y, test_size=test_size, random_state=42
+        self.imgs_train, self.imgs_validation, self.gt_imgs_train, self.gt_imgs_validation = train_test_split(
+            tmp_x, tmp_y, test_size=validation_size, random_state=42
         )
         print("Done!")
-    def compute_mean_std(self):
-        """Compute mean and standard deviation of the train set."""
-        print("Computing mean and std...")
-        mean_r = np.mean(self.imgs[:, 0, :, :])
-        mean_g = np.mean(self.imgs[:, 1, :, :])
-        mean_b = np.mean(self.imgs[:, 2, :, :])
+    def permute_axis(self):
+        """Permute the axis of the images."""
+        print("Permuting axis...")
+        self.imgs_patches = np.transpose(self.imgs_patches, (0, 3, 1, 2))
+        print("Done!")
+    
+    def proceed(self):
+        """Proceed to the basic processing."""
+        self.create_patches()
+        self.create_labels()
+        self.permute_axis()
+        self.create_sets()
 
-        means = np.array([mean_r, mean_g, mean_b])
+class AdvancedProcessing:
+    """ Class to process all datas in a more advanced way."""
+    def __init__(self, 
+                 nb_images=constants.NB_IMAGES, 
+                 patch_size=constants.PATCH_SIZE,
+                 window_size=constants.WINDOW_SIZE,
+                 threshold=constants.FOREGROUND_THRESHOLD,
+                 validation_size=constants.VALIDATION_RATIO,
+                 test_size=constants.TEST_RATIO,
+                 batchsize=constants.BATCH_SIZE,
+                 num_workers=constants.NUM_WORKERS,
+                 num_samples=constants.TRAIN_SAMPLES,
+                 upsample=True,
+                 standardize=True):
+        """Constructor.
+        Args:
+            imgs (np.ndarray): Images.
+            gt_imgs (np.ndarray): Groundtruth images.
+        """
+        self.nb_images = nb_images
+        self.patch_size = patch_size
+        self.window_size = window_size
+        self.threshold = threshold
+        self.validation_size = validation_size
+        self.test_size = test_size
+        self.batchsize = batchsize
+        self.num_workers = num_workers
+        self.upsample = upsample
+        self.num_samples = num_samples
+        self.standardize = standardize
+        self.imgs = np.array([])
+        self.imgs_train = np.array([])
+        self.gt_imgs_train = np.array([])
+        self.imgs_test = np.array([])
+        self.gt_imgs_test = np.array([])
+        self.imgs_validation = np.array([])
+        self.gt_imgs_validation = np.array([])
+        self.X_train = np.array([])
+        self.y_train = np.array([])
+        self.X_test = np.array([])
+        self.y_test = np.array([])
+        self.X_validation = np.array([])
+        self.y_validation = np.array([])
 
-        std_r = np.std(self.imgs[:, 0, :, :])
-        std_g = np.std(self.imgs[:, 1, :, :])
-        std_b = np.std(self.imgs[:, 2, :, :])
+    def load_data(self):
+        """Load the data."""
+        print("Loading data...")
+        self.imgs, self.gt_imgs = load_datas(self.nb_images)
+        print("Done!")
+    
+    def standardize_color(self):
+        """Standardize the images."""
+        print("Standardizing...")
+        means = np.mean(self.imgs, axis=(0, 1, 2))
+        stds = np.std(self.imgs, axis=(0, 1, 2))
+        for i in range(constants.NUM_CHANNELS):
+            self.imgs[:, :, :, i] = (self.imgs[:, :, :, i] - means[i]) / stds[i]
+        print("Done!")
+    
+    def split_sets(self):
+        """Split the data into train, test and validation sets."""
+        print("Splitting data...")
+        tmp_x, self.imgs_test, tmp_y, self.gt_imgs_test  = train_test_split(
+            self.imgs, self.gt_imgs, test_size=self.test_size, random_state=42
+        )
+        self.imgs_train, self.imgs_validation, self.gt_imgs_train, self.gt_imgs_validation = train_test_split(
+            tmp_x, tmp_y, test_size=self.validation_size, random_state=42
+        )
+        print("Done!")
+    
+    def create_patches(self):
+        """Create patches from the images."""
+        print("Creating patches...")
+        self.X_train, self.y_train = image_generator(
+            images=self.imgs_train,
+            ground_truths=self.gt_imgs_train,
+            window_size=self.window_size,
+            nb_batches=self.num_samples//self.batchsize,
+            batch_size=self.batchsize,
+            upsample=self.upsample,
+        )
+        self.X_test,self.y_test = create_windows_gt(
+            images=self.imgs_test,
+            gt_images=self.gt_imgs_test,
+            window_size=self.window_size)
+        self.X_validation,self.y_validation = create_windows_gt(
+            images=self.imgs_validation,
+            gt_images=self.gt_imgs_validation,
+            window_size=self.window_size)
+        print("Done!")
 
-        stds = np.array([std_r, std_g, std_b])
-        
-        return means, stds
+    def create_dataloader(self):
+        """Create dataloader from the patches."""
+        print("Creating dataloader...")
+        self.train_dataloader = DataLoader(
+                            dataset=list(zip(self.X_train, self.y_train)),
+                            batch_size=self.batchsize,
+                            shuffle=True,
+                            num_workers=self.num_workers)
+
+        self.validate_dataloader = DataLoader(
+                                dataset=list(zip(self.X_validation, self.y_validation)),
+                                batch_size=self.batchsize,
+                                shuffle=False,
+                                num_workers=self.num_workers)
+        self.test_dataloader = DataLoader(
+                                dataset=list(zip(self.X_test, self.y_test)),
+                                batch_size=self.batchsize,
+                                shuffle=False,
+                                num_workers=self.num_workers)
+        print("Done!")
+
+    def proceed(self):
+        """Proceed to the advanced processing."""
+        self.load_data()
+        if self.standardize:
+            self.standardize_color()
+        self.split_sets()
+        self.create_patches()
+        self.create_dataloader()
+    
