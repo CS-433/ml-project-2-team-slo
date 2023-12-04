@@ -55,11 +55,11 @@ class DataAugmentation:
         return np.array(transformed_imgs)
 
             
-def create_augmented_patches(images, patch_size):
+def create_augmented_patches(images, augm_patch_size):
     """Create augmented patches from images.
     Args:
         images (numpy array): Images to augment.
-        patch_size (int): Desired Size of the patch.
+        augm_patch_size (int): Desired Size of the patch.
     Returns:
         numpy array: Augmented patches.
     """
@@ -70,7 +70,7 @@ def create_augmented_patches(images, patch_size):
         im_width = im.shape[0]
         im_height = im.shape[1]
         # Pad the image
-        pad_size = (patch_size - constants.PATCH_SIZE)//2
+        pad_size = (augm_patch_size - constants.PATCH_SIZE)//2
         padded = pading_img(im, pad_size)
         # Create patches
         for i in range(pad_size, im_height + pad_size, constants.PATCH_SIZE):
@@ -98,12 +98,12 @@ def pading_img(img, pad_size):
         padded = np.pad(img, ((pad_size, pad_size), (pad_size, pad_size), (0, 0)), mode='reflect')
     return padded
 
-def create_augmented_patches_gt(images, gt_images, patch_size):
+def create_augmented_patches_gt(images, gt_images, augm_patch_size):
     """Create augmented patches from images and ground truth images.
     Args:
         images (numpy array): Images to augment.
         gt_images (numpy array): Ground truth images to augment.
-        patch_size (int): Desired Size of the patch.
+        augm_patch_size (int): Desired Size of the patch.
     Returns:
         numpy array: Augmented patches.
         numpy array: Augmented ground truth patches.
@@ -116,7 +116,7 @@ def create_augmented_patches_gt(images, gt_images, patch_size):
         im_width = im.shape[0]
         im_height = im.shape[1]
         # Pad the image
-        pad_size = (patch_size - constants.PATCH_SIZE)//2
+        pad_size = (augm_patch_size - constants.PATCH_SIZE)//2
         padded_im = pading_img(im, pad_size)
         padded_gt = pading_img(gt, pad_size)
         # Create patches
@@ -133,6 +133,7 @@ def create_augmented_patches_gt(images, gt_images, patch_size):
     augmented_gt_patches = np.asarray(augmented_gt_patches)
     return np.transpose(augmented_patches, (0, 3, 1, 2)), augmented_gt_patches
 
+
 def rotation(image, xy, angle):
     """Rotate an image.
     Args:
@@ -144,21 +145,145 @@ def rotation(image, xy, angle):
     """
     # Create rotation matrix using scipy function rotate
     image_rotate = rotate(image, angle, reshape=False)
-    # Create rotation center
-    org_center = (np.array(image.shape[:2][::-1])-1)/2.
-    rot_center = (np.array(image_rotate.shape[:2][::-1])-1)/2.
-    # Create rotation matrix
-    rot_mat = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
-    # Create new coordinates
-    org = xy-org_center
-    new = np.array([org[0]*np.cos(angle) + org[1]*np.sin(angle), -org[0]*np.sin(angle) + org[1]*np.cos(angle)])
-    # Create new image
-    new_image = np.zeros(image.shape)
-    for i in range(image.shape[0]):
-        for j in range(image.shape[1]):
-            x, y = i - xy[0], j - xy[1]
-            x, y = np.dot(rot_mat, np.array([x, y]))
-            x, y = int(x + xy[0]), int(y + xy[1])
-            if x >= 0 and x < image.shape[0] and y >= 0 and y < image.shape[1]:
-                new_image[i, j] = image_rotate[x, y]
-    return new_image
+
+    return image_rotate
+
+
+def rotate_batch(img, gt, im_width, im_height, pad_size):
+    # Rotates the entire batch for better performance
+    random_rotation = 0
+    if np.random.randint(0, 100) < 10:
+        rotations = [90, 180, 270, 45, 135, 225, 315]
+        random_rotation = np.random.randint(0, 7)
+        img = rotation(img, np.array([im_width + 2*pad_size,im_height + 2* pad_size]), rotations[random_rotation])
+        gt = rotation(gt, np.array([im_width, im_height]),rotations[random_rotation])
+    return img, gt, random_rotation
+
+
+def generate_single_sample(img, gt, pad_size, half_patch, augm_batch_size, random_rotation, im_width, im_height):
+    x = np.empty((augm_batch_size, augm_batch_size, 3))
+    y = np.empty((augm_batch_size, augm_batch_size, 3))
+
+    if(random_rotation > 2):
+        boundary = int((im_width- im_width / np.sqrt(2)) / 2)
+    else : 
+        boundary = 0
+    center_x = np.random.randint(half_patch + boundary, im_width - half_patch - boundary)
+    center_y = np.random.randint(half_patch + boundary, im_height - half_patch - boundary)
+
+    x = img[center_x - half_patch:center_x + half_patch + 2 * pad_size,
+           center_y - half_patch:center_y + half_patch + 2 * pad_size]
+    y = gt[center_x - half_patch:center_x + half_patch,
+           center_y - half_patch:center_y + half_patch]
+
+    if np.random.randint(0, 2):  # vertical flip
+        x = np.flipud(x)
+    if np.random.randint(0, 2):  # horizontal flip
+        x = np.fliplr(x)
+
+    label = 1 if (np.array([np.mean(y)]) >  constants.FOREGROUND_THRESHOLD) else 0
+
+    return x, label
+
+
+
+
+
+
+
+def generate_batch(images, ground_truths, augm_patch_size, nb_batches, batch_size = 64, upsample = False):
+    """Generate a batch of augmented patches.
+    Args:
+        images (numpy array): Images to augment.
+        ground_truths (numpy array): Ground truth images to augment.
+        augm_patch_size (int): Desired Size of the patch.
+        nb_batches (int): Number of batches.
+        batch_size (int): Size of the batch.
+        upsample (bool): Upsample the batch.
+    Returns:
+        numpy array: Augmented patches.
+        numpy array: Augmented ground truth patches.
+    """
+    np.random.seed(0)
+    im_width = images[0].shape[0]
+    im_height = images[0].shape[1]
+    half_patch = constants.PATCH_SIZE // 2
+    pad_size = (augm_patch_size - constants.PATCH_SIZE)//2
+    padded_images = [pading_img(im, pad_size) for im in images]
+
+    X = []
+    Y = []
+
+    for i in range(nb_batches):
+        batch_in = []
+        batch_out = []
+        rand_ind = np.random.randint(0, len(images))
+
+        img, gt, random_rotation = rotate_batch(padded_images[rand_ind], 
+                                    ground_truths[rand_ind], im_width, im_height, pad_size)
+        background_count = 0
+        road_count = 0
+
+        while len(batch_in) < batch_size :
+            x, label = generate_single_sample(img, gt, half_patch,augm_patch_size, random_rotation, im_width, im_height)
+            if not upsample :
+                batch_in.append(x)
+                batch_out.append(label)
+            elif label == 0:
+                #For Background
+                if background_count != batch_size // 2:
+                    batch_in.append(x)
+                    batch_out.append(label)
+                    background_count += 1
+            elif label == 1:
+                #For road
+                if road_count != batch_size // 2:
+                    road_count += 1
+                    batch_in.append(x)
+                    batch_out.append(label)
+        x_batch = np.array(batch_in)
+        y_batch = np.array(batch_out)
+        X.append(x_batch)
+        Y.append(y_batch)
+    X = np.array(X)
+    Y = np.array(Y)
+    X = X.reshape(-1, augm_patch_size, augm_patch_size, 3)
+    Y = Y.reshape(-1,)
+    X = X.transpose(0, 3, 1, 2)
+    return X, Y        
+
+
+
+
+
+def generate_single_sample(img, gt, pad_size, half_patch, augm_batch_size, random_rotation, im_width, im_height):
+    x = np.empty((augm_batch_size, augm_batch_size, 3))
+    y = np.empty((augm_batch_size, augm_batch_size, 3))
+
+    if(random_rotation > 2):
+        boundary = int((im_width- im_width / np.sqrt(2)) / 2)
+    else : 
+        boundary = 0
+    center_x = np.random.randint(half_patch + boundary, im_width - half_patch - boundary)
+    center_y = np.random.randint(half_patch + boundary, im_height - half_patch - boundary)
+
+    x = img[center_x - half_patch:center_x + half_patch + 2 * pad_size,
+           center_y - half_patch:center_y + half_patch + 2 * pad_size]
+    y = gt[center_x - half_patch:center_x + half_patch,
+           center_y - half_patch:center_y + half_patch]
+
+    if np.random.randint(0, 2):  # vertical flip
+        x = np.flipud(x)
+    if np.random.randint(0, 2):  # horizontal flip
+        x = np.fliplr(x)
+
+    label = 1 if (np.array([np.mean(y)]) >  constants.FOREGROUND_THRESHOLD) else 0
+
+    return x, label
+        
+
+
+
+
+
+
