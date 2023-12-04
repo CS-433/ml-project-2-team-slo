@@ -15,6 +15,7 @@ from load_datas import load_test_datas
 from helpers import masks_to_submission
 from post_processing import save_pred_as_png
 from visualization import label_to_img
+from preprocessing_helper import create_windows
 
 
 class TestData:
@@ -24,15 +25,18 @@ class TestData:
         model,
         batchsize=constants.BATCH_SIZE,
         num_workers=constants.NUM_WORKERS,
-        patch_size = constants.PATCH_SIZE
+        patch_size=constants.PATCH_SIZE,
+        window_size=constants.WINDOW_SIZE
     ):
         """Constructor."""
+        self.model = model
         self.batchsize = batchsize
         self.imgs = np.array([])
         self.test_dataloader = None
         self.num_workers = num_workers
         self.pred = None
         self.patch_size = patch_size
+        self.window_size = window_size
 
     def load_data(self):
         """Load the data."""
@@ -44,25 +48,30 @@ class TestData:
         """Create dataloader from the patches."""
         print("Creating dataloader...")
         self.test_dataloader = DataLoader(
-                                dataset=self.imgs,
+                                dataset=self.patches,
                                 batch_size=self.batchsize,
                                 shuffle=False)
         print("Done!")
-    
-    def prediction(self,model):
+    def format_data(self):
+        """Format the data to be used by the model."""
+        print("Formatting data...")
+        self.patches = create_windows(self.imgs, self.window_size)
+        print("Done!")
+    def prediction(self):
         """Create prediction from the model."""
         print("Creating prediction...")
-        self.pred = model.predict(self.test_dataloader)
+        self.pred = self.model.predict(self.test_dataloader)
         print("Done!")
 
     def create_submission(self):
         images_filenames = save_pred_as_png(self.pred, len(self.imgs), self.patch_size, label_to_img)
         masks_to_submission('submission.csv', *images_filenames)
+        print("Submission created!")
     
     def proceed(self):
         """Process all the steps."""
         self.load_data()
+        self.format_data()
         self.create_dataloader()
         self.prediction()
         self.create_submission()
-        print("Submission created!")
