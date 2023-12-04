@@ -20,14 +20,14 @@ from load_datas import load_datas
 class BasicProcessing:
     """Class to process all datas. All the attributes are numpy arrays."""
 
-    def __init__(self, imgs, gt_imgs = None):
+    def __init__(self):
         """Constructor.
         Args:
             imgs (np.ndarray): Images.
             gt_imgs (np.ndarray): Groundtruth images.
         """
-        self.imgs = np.array(imgs)
-        self.gt_imgs = np.array(gt_imgs)
+        self.imgs = np.array([])
+        self.gt_imgs = np.array([])
         self.imgs_patches = np.array([])
         self.gt_imgs_patches = np.array([])
         self.imgs_train = np.array([])
@@ -99,9 +99,14 @@ class BasicProcessing:
         print("Permuting axis...")
         self.imgs_patches = np.transpose(self.imgs_patches, (0, 3, 1, 2))
         print("Done!")
-    
+    def load_data(self):
+        """Load the data."""
+        print("Loading data...")
+        self.imgs, self.gt_imgs = load_datas(nb_img=constants.NB_IMAGES)
+        print("Done!")
     def proceed(self):
         """Proceed to the basic processing."""
+        self.load_data()
         self.create_patches()
         self.create_labels()
         self.permute_axis()
