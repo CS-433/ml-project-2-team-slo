@@ -77,3 +77,8 @@ To solve the problems mentionned in the abstract, the following solutions are pr
 
 ## Results
 
+| Model                                  | Accuracy | F1-score | AICrowd score | AICrowd secondary score |
+|----------------------------------------|----------|----------|---------------|-------------------------|
+| Logistic regression                    |          |          |               |                         |
+| Basic ConvNet with normal processing   |          |          |               |                         |
+| Basic Convent with Advanced processing |          |          |               |                         |
