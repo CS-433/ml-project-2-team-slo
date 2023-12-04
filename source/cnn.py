@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 # -*- author : Yannis Laaroussi -*-
 # -*- date : 2023-11-25 -*-
-# -*- Last revision: 2023-12-02 -*-
+# -*- Last revision: 2023-12-03 (Vincent Roduit)-*-
 # -*- python version : 3.11.6 -*-
 # -*- Convolutional Network model -*-
 
 import torch
 import torch.nn as nn
-from constants import *
+import constants
 from helpers import *
 
 class Basic_CNN(nn.Module):
-    def __init__(self, patch_size):
+    def __init__(
+            self,
+            patch_size=constants.WINDOW_SIZE):
         """Constructor."""
         super(Basic_CNN, self).__init__()
 
@@ -75,7 +77,7 @@ class Basic_CNN(nn.Module):
                 for input, target in val_loader:
                     input, target = input.to(self.device), target.to(self.device)
                     output = self(input)
-                    predictions = (output > FOREGROUND_THRESHOLD).float()
+                    predictions = (output > constants.FOREGROUND_THRESHOLD).float()
                     target = target.float().view(-1, 1)
                     total_correct += (predictions == target).sum().item()
                     test_loss += criterion(output, target).item() * len(input)
@@ -100,7 +102,7 @@ class Basic_CNN(nn.Module):
           for input in test_loader:
               input = input.to(device)  # Move input data to the same device as the model
               output = self(input)
-              output = (output > FOREGROUND_THRESHOLD).float()
+              output = (output > constants.FOREGROUND_THRESHOLD).float()
               predictions.append(output.cpu())  # Move predictions back to CPU
 
       return torch.cat(predictions).numpy().ravel()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- author : Vincent Roduit -*-
 # -*- date : 2023-11-25 -*-
-# -*- Last revision: 2023-11-35 -*-
+# -*- Last revision: 2023-12-03 -*-
 # -*- python version : 3.11.6 -*-
 # -*- Regroup all the constants used -*-
 
@@ -25,9 +25,12 @@ NB_IMAGES_MAX = len(os.listdir(IMAGE_DIR))
 NB_IMAGES = 10
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 FOREGROUND_THRESHOLD = 0.25
+NUM_WORKERS = 2 if torch.cuda.is_available() else 0
+WINDOW_SIZE = 80
 #DATA SIZE
 TEST_RATIO = 0.1
 VALIDATION_RATIO = 0.3
-TRAIN_SAMPLES= 10000
-TEST_SAMPLES = TRAIN_SAMPLES * TEST_RATIO
-VALIDATION_SAMPLES = TRAIN_SAMPLES * VALIDATION_RATIO
+TRAIN_SAMPLES= 30000
+BATCH_SIZE = 32
+TEST_SAMPLES = int(TRAIN_SAMPLES * TEST_RATIO)
+VALIDATION_SAMPLES = int(TRAIN_SAMPLES * VALIDATION_RATIO)

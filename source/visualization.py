@@ -28,7 +28,7 @@ def visualize_patch(img):
     Args:
         img: Image.
     """
-    fig1 = plt.figure(figsize=(10, 10))
+    fig1 = plt.figure(figsize=(5, 5))
     plt.imshow(img, cmap="Greys_r")
 
 def visualize_solution(img,imgwidth,imgheight,prediction):
@@ -41,7 +41,7 @@ def visualize_solution(img,imgwidth,imgheight,prediction):
 
     """
     predicted_im = label_to_img(imgwidth, imgheight, PATCH_SIZE, PATCH_SIZE, prediction)
-    fig1 = plt.figure(figsize=(10, 10))  # create a figure with the default size
+    fig1 = plt.figure(figsize=(7, 7))  # create a figure with the default size
 
     image = make_img_overlay(img, predicted_im)
 
