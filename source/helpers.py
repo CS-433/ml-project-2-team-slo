@@ -9,6 +9,7 @@
 #import libraries
 import numpy as np
 import matplotlib.image as mpimg
+import constants
 
 # Helper functions
 def load_image(infilename):
@@ -79,6 +80,13 @@ def img_crop(im, w, h):
                 im_patch = im[j : j + w, i : i + h, :]
             list_patches.append(im_patch)
     return list_patches
+
+def value_to_class(v):
+    df = np.mean(v)
+    if df > constants.FOREGROUND_THRESHOLD:
+        return 1
+    else:
+        return 0
 
 
 def f1_score(preds, targets):

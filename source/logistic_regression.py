@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import os, sys
 from PIL import Image
 from sklearn import linear_model
-from helpers import f1_score
+from helpers import f1_score, value_to_class
 
 #import files
 import constants
@@ -38,19 +38,13 @@ class LogisticRegression:
         feat_v = np.var(img)
         feat = np.append(feat_m, feat_v)
         return feat
-    def value_to_class(self,v):
-        df = np.sum(v)
-        if df > constants.FOREGROUND_THRESHOLD:
-            return 1
-        else:
-            return 0
 
     def compute_vectors(self):
         self.X = np.asarray(
             [self.extract_features_2d(self.imgs_patches[i]) for i in range(len(self.imgs_patches))]
         )
         self.Y = np.asarray(
-            [self.value_to_class(np.mean(self.gt_imgs_patches[i])) for i in range(len(self.gt_imgs_patches))])
+            [value_to_class(np.mean(self.gt_imgs_patches[i])) for i in range(len(self.gt_imgs_patches))])
     
     def train(self):
         self.logreg = linear_model.LogisticRegression(C=1e5, class_weight="balanced")
