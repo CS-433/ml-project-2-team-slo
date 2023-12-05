@@ -22,7 +22,7 @@ NUM_CHANNELS = 3
 
 #Training parameters
 NB_IMAGES_MAX = len(os.listdir(IMAGE_DIR))
-NB_IMAGES = 10
+NB_IMAGES = 100
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 FOREGROUND_THRESHOLD = 0.25
 NUM_WORKERS = 2 if torch.cuda.is_available() else 0

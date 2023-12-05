@@ -120,7 +120,6 @@ class AdvancedProcessing:
                  window_size=constants.WINDOW_SIZE,
                  threshold=constants.FOREGROUND_THRESHOLD,
                  validation_size=constants.VALIDATION_RATIO,
-                 test_size=constants.TEST_RATIO,
                  batchsize=constants.BATCH_SIZE,
                  num_workers=constants.NUM_WORKERS,
                  num_samples=constants.TRAIN_SAMPLES,
@@ -136,7 +135,6 @@ class AdvancedProcessing:
         self.window_size = window_size
         self.threshold = threshold
         self.validation_size = validation_size
-        self.test_size = test_size
         self.batchsize = batchsize
         self.num_workers = num_workers
         self.upsample = upsample
@@ -145,8 +143,6 @@ class AdvancedProcessing:
         self.imgs = np.array([])
         self.imgs_train = np.array([])
         self.gt_imgs_train = np.array([])
-        self.imgs_test = np.array([])
-        self.gt_imgs_test = np.array([])
         self.imgs_validation = np.array([])
         self.gt_imgs_validation = np.array([])
         self.X_train = np.array([])
@@ -174,17 +170,15 @@ class AdvancedProcessing:
     def split_sets(self):
         """Split the data into train, test and validation sets."""
         print("Splitting data...")
-        tmp_x, self.imgs_test, tmp_y, self.gt_imgs_test  = train_test_split(
-            self.imgs, self.gt_imgs, test_size=self.test_size, random_state=42
-        )
         self.imgs_train, self.imgs_validation, self.gt_imgs_train, self.gt_imgs_validation = train_test_split(
-            tmp_x, tmp_y, test_size=self.validation_size, random_state=42
+            self.imgs, self.gt_imgs, test_size=self.validation_size, random_state=42
         )
         print("Done!")
     
     def create_patches(self):
         """Create patches from the images."""
         print("Creating patches...")
+        print("Creating patches for training set...")
         self.X_train, self.y_train = image_generator(
             images=self.imgs_train,
             ground_truths=self.gt_imgs_train,
@@ -193,10 +187,7 @@ class AdvancedProcessing:
             batch_size=self.batchsize,
             upsample=self.upsample,
         )
-        self.X_test,self.y_test = create_windows_gt(
-            images=self.imgs_test,
-            gt_images=self.gt_imgs_test,
-            window_size=self.window_size)
+        print("Creating patches for validation set...")
         self.X_validation,self.y_validation = create_windows_gt(
             images=self.imgs_validation,
             gt_images=self.gt_imgs_validation,
@@ -214,11 +205,6 @@ class AdvancedProcessing:
 
         self.validate_dataloader = DataLoader(
                                 dataset=list(zip(self.X_validation, self.y_validation)),
-                                batch_size=self.batchsize,
-                                shuffle=False,
-                                num_workers=self.num_workers)
-        self.test_dataloader = DataLoader(
-                                dataset=list(zip(self.X_test, self.y_test)),
                                 batch_size=self.batchsize,
                                 shuffle=False,
                                 num_workers=self.num_workers)
