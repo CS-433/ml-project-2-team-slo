@@ -52,6 +52,16 @@ class TestData:
                                 batch_size=self.batchsize,
                                 shuffle=False)
         print("Done!")
+
+    def standardize_color(self):
+        """Standardize the images."""
+        print("Standardizing...")
+        means = np.mean(self.imgs, axis=(0, 1, 2))
+        stds = np.std(self.imgs, axis=(0, 1, 2))
+        for i in range(constants.NUM_CHANNELS):
+            self.imgs[:, :, :, i] = (self.imgs[:, :, :, i] - means[i]) / stds[i]
+        print("Done!")
+
     def format_data(self):
         """Format the data to be used by the model."""
         print("Formatting data...")
@@ -77,6 +87,7 @@ class TestData:
     def proceed(self):
         """Process all the steps."""
         self.load_data()
+        self.standardize_color()
         self.format_data()
         self.create_dataloader()
         self.prediction()
