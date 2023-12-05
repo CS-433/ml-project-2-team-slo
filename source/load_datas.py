@@ -21,6 +21,7 @@ def load_datas(nb_img):
         np.ndarray: The loaded image.
     """
     files = os.listdir(IMAGE_DIR)
+    files = sorted(files, reverse = False)
     n = min(nb_img, len(files))
     imgs = [load_image(IMAGE_DIR + files[i]) for i in range(n)]
     gt_imgs = [load_image(GT_DIR + files[i]) for i in range(n)]
