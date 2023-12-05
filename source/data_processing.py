@@ -16,6 +16,7 @@ import constants
 from helpers import *
 from preprocessing_helper import *
 from load_datas import load_datas
+from data_augmentation import generate_batch
 
 class BasicProcessing:
     """Class to process all datas. All the attributes are numpy arrays."""
@@ -147,8 +148,6 @@ class AdvancedProcessing:
         self.gt_imgs_validation = np.array([])
         self.X_train = np.array([])
         self.y_train = np.array([])
-        self.X_test = np.array([])
-        self.y_test = np.array([])
         self.X_validation = np.array([])
         self.y_validation = np.array([])
 
@@ -170,20 +169,21 @@ class AdvancedProcessing:
     def split_sets(self):
         """Split the data into train, test and validation sets."""
         print("Splitting data...")
-        self.imgs_train, self.imgs_validation, self.gt_imgs_train, self.gt_imgs_validation = train_test_split(
-            self.imgs, self.gt_imgs, test_size=self.validation_size, random_state=42
-        )
+        self.imgs_train = self.imgs[:80]
+        self.gt_imgs_train = self.gt_imgs[:80]
+        self.imgs_validation = self.imgs[80:100]
+        self.gt_imgs_validation = self.gt_imgs[80:100]
         print("Done!")
     
     def create_patches(self):
         """Create patches from the images."""
         print("Creating patches...")
         print("Creating patches for training set...")
-        self.X_train, self.y_train = image_generator(
+        self.X_train, self.y_train = generate_batch(
             images=self.imgs_train,
             ground_truths=self.gt_imgs_train,
-            window_size=self.window_size,
-            nb_batches=self.num_samples//self.batchsize,
+            augm_patch_size=self.window_size,
+            nb_batches=2000,
             batch_size=self.batchsize,
             upsample=self.upsample,
         )
@@ -191,7 +191,7 @@ class AdvancedProcessing:
         self.X_validation,self.y_validation = create_windows_gt(
             images=self.imgs_validation,
             gt_images=self.gt_imgs_validation,
-            window_size=self.window_size)
+            augm_patch_size=self.window_size)
         print("Done!")
 
     def create_dataloader(self):
