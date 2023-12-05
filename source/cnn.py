@@ -35,8 +35,17 @@ class Basic_CNN(nn.Module):
         self.conv4 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1)
         self.dropout2 = nn.Dropout(0.1)
         self.relu4 = nn.LeakyReLU(0.1)
+        self.pool4 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.fc1 = nn.Linear(64 * (patch_size // 8) * (patch_size // 8), 1)
+        self.conv5 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1)
+        self.relu5 = nn.LeakyReLU(0.1)
+        self.pool5 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        self.conv6 = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1)
+        self.dropout3 = nn.Dropout(0.1)
+        self.relu6 = nn.LeakyReLU(0.1)
+        
+        self.fc = nn.Linear(128 * (patch_size // 32) * (patch_size // 32), 1)
         # self.fc2 = nn.Linear(64, 1)
     
 
@@ -45,10 +54,11 @@ class Basic_CNN(nn.Module):
         x = self.pool1(self.relu1(self.conv1(x)))
         x = self.pool2(self.relu2(self.dropout1(self.conv2(x))))
         x = self.pool3(self.relu3(self.conv3(x)))
-        x = self.relu4(self.dropout2(self.conv4(x)))
+        x = self.pool4(self.relu4(self.dropout2(self.conv4(x))))
+        x = self.pool5(self.relu5(self.conv5(x)))
+        x = self.relu6(self.dropout3(self.conv6(x)))
         x = x.view(x.size(0), -1)
-        x = self.fc1(x)
-        # x = self.fc2(x)
+        x = self.fc(x)
         return x
 
     
