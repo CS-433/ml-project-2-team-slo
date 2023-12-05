@@ -39,5 +39,6 @@ def load_test_datas():
     if '.DS_Store' in files:
         files.remove('.DS_Store')
     sorted_files = sorted(files, key=lambda x: int(x.split('_')[1]))
+    print(sorted_files)
     imgs = [load_image(TEST_DIR + file + '/' + file + '.png') for file in sorted_files if not file.startswith('.')]
     return np.asarray(imgs)

@@ -64,7 +64,13 @@ class TestData:
         print("Done!")
 
     def create_submission(self):
-        images_filenames = save_pred_as_png(self.pred, len(self.imgs), self.patch_size, label_to_img)
+        images_filenames = save_pred_as_png(
+            self.pred, 
+            len(self.imgs), 
+            self.patch_size, 
+            label_to_img,
+            folder_path='../data/submission/output')
+        
         masks_to_submission('submission.csv', *images_filenames)
         print("Submission created!")
     

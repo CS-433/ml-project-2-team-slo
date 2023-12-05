@@ -160,9 +160,9 @@ def rotate_batch(img, gt, im_width, im_height, pad_size):
     return img, gt, random_rotation
 
 
-def generate_single_sample(img, gt, pad_size, half_patch, augm_batch_size, random_rotation, im_width, im_height):
-    x = np.empty((augm_batch_size, augm_batch_size, 3))
-    y = np.empty((augm_batch_size, augm_batch_size, 3))
+def generate_single_sample(img, gt, pad_size, half_patch, augm_patch_size, random_rotation, im_width, im_height):
+    x = np.empty((augm_patch_size, augm_patch_size, 3))
+    y = np.empty((augm_patch_size, augm_patch_size, 3))
 
     if(random_rotation > 2):
         boundary = int((im_width- im_width / np.sqrt(2)) / 2)
@@ -215,6 +215,8 @@ def generate_batch(images, ground_truths, augm_patch_size, nb_batches, batch_siz
     Y = []
 
     for i in range(nb_batches):
+        if i % 500 == 0:
+            print(f'Create batch {i}/{nb_batches}')
         batch_in = []
         batch_out = []
         rand_ind = np.random.randint(0, len(images))
@@ -225,7 +227,7 @@ def generate_batch(images, ground_truths, augm_patch_size, nb_batches, batch_siz
         road_count = 0
 
         while len(batch_in) < batch_size :
-            x, label = generate_single_sample(img, gt, half_patch,augm_patch_size, random_rotation, im_width, im_height)
+            x, label = generate_single_sample(img, gt, pad_size, half_patch, augm_patch_size, random_rotation, im_width, im_height)
             if not upsample :
                 batch_in.append(x)
                 batch_out.append(label)
@@ -251,10 +253,6 @@ def generate_batch(images, ground_truths, augm_patch_size, nb_batches, batch_siz
     Y = Y.reshape(-1,)
     X = X.transpose(0, 3, 1, 2)
     return X, Y        
-
-
-
-
 
 def generate_single_sample(img, gt, pad_size, half_patch, augm_batch_size, random_rotation, im_width, im_height):
     x = np.empty((augm_batch_size, augm_batch_size, 3))
