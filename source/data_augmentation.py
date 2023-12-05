@@ -7,8 +7,6 @@
 
 # import libraries
 import numpy as np
-import random
-import torch
 from torchvision.transforms import v2
 import constants
 from scipy.ndimage import rotate
@@ -76,6 +74,7 @@ def generate_samples(imgs, gt_imgs, augm_patch_size, nb_samples):
         numpy array: Augmented patches.
         numpy array: Augmented ground truth patches.
     """
+    np.random.seed(0)
     half_patch = constants.PATCH_SIZE // 2
     pad_size = (augm_patch_size - constants.PATCH_SIZE)//2
     padded_images = [pading_img(im, pad_size) for im in imgs]
@@ -85,18 +84,20 @@ def generate_samples(imgs, gt_imgs, augm_patch_size, nb_samples):
 
     nb_road = 0
     nb_background = 0
-    
+    count = 0
+    img_index = np.random.randint(0, len(imgs))
     while len(labels) < nb_samples:
-        if len(labels) % 100 == 0:
-            print(f'Create sample {len(labels)}/{nb_samples}')
-
-        img_index = np.random.randint(0, len(imgs))
+        if(count % 32 == 0):
+            img_index = np.random.randint(0, len(imgs))
         img,gt = padded_images[img_index], gt_imgs[img_index]
         rotate_prob = np.random.rand()
-        if rotate_prob <= 0.25:
-            angle = np.random.randint(0, 45)
+        if rotate_prob <= 0.1:
+            angle = np.random.randint(20, 45)
             img = rotate(img, angle=angle, reshape=False)
+            boundary = int((img.shape[0] - img.shape[1] / np.sqrt(2)) / 2)
+            img = img[boundary:-boundary, boundary:-boundary,:]
             gt = rotate(gt, angle=angle, reshape=False)
+            gt = gt[boundary:-boundary, boundary:-boundary]
         feature, label = generate_single_sample(img,gt, pad_size,half_patch)
         if label == 1:
             if nb_road < nb_samples//2:
@@ -108,6 +109,7 @@ def generate_samples(imgs, gt_imgs, augm_patch_size, nb_samples):
                 features.append(feature)
                 labels.append(label)
                 nb_background += 1
+        count += 1
     features = np.transpose(features, (0, 3, 1, 2))
     return np.asarray(features), np.asarray(labels)      
 
@@ -124,10 +126,3 @@ def generate_single_sample(img, gt, pad_size, half_patch):
            patch_coord['y'] - half_patch:patch_coord['y'] + half_patch]
     label = value_to_class(y)
     return features, label
-        
-
-
-
-
-
-
