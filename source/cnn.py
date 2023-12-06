@@ -62,9 +62,13 @@ class Basic_CNN(nn.Module):
         return x
 
     
-    def train_model(self, optimizer, scheduler, criterion, train_loader, val_loader, num_epochs=10):
-        """Train the model."""
+    def train_model(self, optimizer, scheduler, criterion, train_loader, val_loader, num_epochs=10, patience=3, tolerance=0.05):
+        """Train the model with early stopping and tolerance."""
         self.to(self.device)
+        
+        best_val_loss = float('inf')
+        consecutive_no_improvement = 0
+
         for epoch in range(num_epochs):
             self.train()
             for input, target in train_loader:
@@ -98,8 +102,19 @@ class Basic_CNN(nn.Module):
                 accuracy = total_correct / len(val_loader.dataset)
                 f1 = f1_score(torch.cat(tot_preds).cpu().numpy(), torch.cat(tot_targets).cpu().numpy())
                 print(f'Epoch {epoch+1}/{num_epochs}, Loss: {test_loss}, Validation Accuracy: {accuracy:.4f}, F1 score: {f1:.4f}')
-            
+
+                # Early stopping check with tolerance
+                if (best_val_loss - test_loss) / best_val_loss > tolerance:
+                    best_val_loss = test_loss
+                    consecutive_no_improvement = 0
+                else:
+                    consecutive_no_improvement += 1
+                    if consecutive_no_improvement >= patience:
+                        print(f'Early stopping at epoch {epoch+1} as validation loss did not improve for {patience} consecutive epochs with tolerance {tolerance}.')
+                        break  # Stop training
+
             scheduler.step(test_loss)
+
 
 
     def predict(self, test_loader):

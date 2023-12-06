@@ -43,14 +43,14 @@ def create_windows(images, window_size):
     list_patches = np.asarray(list_patches)
     return np.transpose(list_patches, (0, 3, 1, 2))
 
-def create_windows_gt(images, gt_images, window_size):
+def create_windows_gt(images, gt_images, augm_patch_size):
     list_patches = []
     list_labels = []
     for im, gt in zip(images, gt_images):
         is_2d = len(im.shape) < 3
         imgwidth = im.shape[0]
         imgheight = im.shape[1]
-        padSize = (window_size - constants.PATCH_SIZE)//2
+        padSize = (augm_patch_size - constants.PATCH_SIZE)//2
         padded_im = pad_image(im, padSize)
         padded_gt = pad_image(gt, padSize)
         for i in range(padSize, imgheight + padSize, constants.PATCH_SIZE):
@@ -131,7 +131,9 @@ def image_generator(images, ground_truths, window_size,nb_batches, batch_size = 
                 boundary = 0
             center_x = np.random.randint(half_patch + boundary, imgWidth  - half_patch - boundary)
             center_y = np.random.randint(half_patch + boundary, imgHeight - half_patch - boundary)
-            
+            print(img.shape)
+            print(gt.shape)
+            print(imgWidth)
             x = img[center_x - half_patch:center_x + half_patch + 2 * padSize,
                     center_y  - half_patch:center_y + half_patch + 2 * padSize]
             y = gt[center_x - half_patch : center_x + half_patch,

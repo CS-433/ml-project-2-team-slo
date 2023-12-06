@@ -16,29 +16,27 @@ import constants
 from helpers import *
 from preprocessing_helper import *
 from load_datas import load_datas
+from data_augmentation import generate_samples, create_patches_test_set
 
 class BasicProcessing:
     """Class to process all datas. All the attributes are numpy arrays."""
 
-    def __init__(self, imgs, gt_imgs = None):
+    def __init__(self):
         """Constructor.
         Args:
             imgs (np.ndarray): Images.
             gt_imgs (np.ndarray): Groundtruth images.
         """
-        self.imgs = np.array(imgs)
-        if gt_imgs is not None:
-            self.gt_imgs = np.array(gt_imgs)
-            self.imgs_patches = np.array([])
-            self.gt_imgs_patches = np.array([])
-            self.imgs_train = np.array([])
-            self.gt_imgs_train = np.array([])
-            self.imgs_test = np.array([])
-            self.gt_imgs_test = np.array([])
-            self.imgs_validation = np.array([])
-            self.gt_imgs_validation = np.array([])
-        else :
-            self.gt_imgs = None
+        self.imgs = np.array([])
+        self.gt_imgs = np.array([])
+        self.imgs_patches = np.array([])
+        self.gt_imgs_patches = np.array([])
+        self.imgs_train = np.array([])
+        self.gt_imgs_train = np.array([])
+        self.imgs_test = np.array([])
+        self.gt_imgs_test = np.array([])
+        self.imgs_validation = np.array([])
+        self.gt_imgs_validation = np.array([])
 
     
     def create_patches(self, patch_size=constants.PATCH_SIZE):
@@ -57,14 +55,13 @@ class BasicProcessing:
                 for j in range(len(img_patches[i]))
             ]
         )
-        if self.gt_imgs is not None: 
-            gt_patches = [img_crop(self.gt_imgs[i], patch_size, patch_size) for i in range(len(self.imgs))]
-            self.gt_imgs_patches = np.asarray(
-                [
-                    gt_patches[i][j]
-                    for i in range(len(gt_patches))
-                    for j in range(len(gt_patches[i]))
-                ]
+        gt_patches = [img_crop(self.gt_imgs[i], patch_size, patch_size) for i in range(len(self.gt_imgs))]
+        self.gt_imgs_patches = np.asarray(
+            [
+                gt_patches[i][j]
+                for i in range(len(gt_patches))
+                for j in range(len(gt_patches[i]))
+            ]
         )
         print("Done!")
     
@@ -103,9 +100,14 @@ class BasicProcessing:
         print("Permuting axis...")
         self.imgs_patches = np.transpose(self.imgs_patches, (0, 3, 1, 2))
         print("Done!")
-    
+    def load_data(self):
+        """Load the data."""
+        print("Loading data...")
+        self.imgs, self.gt_imgs = load_datas(nb_img=constants.NB_IMAGES)
+        print("Done!")
     def proceed(self):
         """Proceed to the basic processing."""
+        self.load_data()
         self.create_patches()
         self.create_labels()
         self.permute_axis()
@@ -119,7 +121,6 @@ class AdvancedProcessing:
                  window_size=constants.WINDOW_SIZE,
                  threshold=constants.FOREGROUND_THRESHOLD,
                  validation_size=constants.VALIDATION_RATIO,
-                 test_size=constants.TEST_RATIO,
                  batchsize=constants.BATCH_SIZE,
                  num_workers=constants.NUM_WORKERS,
                  num_samples=constants.TRAIN_SAMPLES,
@@ -135,7 +136,6 @@ class AdvancedProcessing:
         self.window_size = window_size
         self.threshold = threshold
         self.validation_size = validation_size
-        self.test_size = test_size
         self.batchsize = batchsize
         self.num_workers = num_workers
         self.upsample = upsample
@@ -144,14 +144,10 @@ class AdvancedProcessing:
         self.imgs = np.array([])
         self.imgs_train = np.array([])
         self.gt_imgs_train = np.array([])
-        self.imgs_test = np.array([])
-        self.gt_imgs_test = np.array([])
         self.imgs_validation = np.array([])
         self.gt_imgs_validation = np.array([])
         self.X_train = np.array([])
         self.y_train = np.array([])
-        self.X_test = np.array([])
-        self.y_test = np.array([])
         self.X_validation = np.array([])
         self.y_validation = np.array([])
 
@@ -173,33 +169,29 @@ class AdvancedProcessing:
     def split_sets(self):
         """Split the data into train, test and validation sets."""
         print("Splitting data...")
-        tmp_x, self.imgs_test, tmp_y, self.gt_imgs_test  = train_test_split(
-            self.imgs, self.gt_imgs, test_size=self.test_size, random_state=42
-        )
-        self.imgs_train, self.imgs_validation, self.gt_imgs_train, self.gt_imgs_validation = train_test_split(
-            tmp_x, tmp_y, test_size=self.validation_size, random_state=42
-        )
+        self.imgs_train = self.imgs[:80]
+        self.gt_imgs_train = self.gt_imgs[:80]
+        self.imgs_validation = self.imgs[80:100]
+        self.gt_imgs_validation = self.gt_imgs[80:100]
         print("Done!")
     
     def create_patches(self):
         """Create patches from the images."""
         print("Creating patches...")
-        self.X_train, self.y_train = image_generator(
-            images=self.imgs_train,
-            ground_truths=self.gt_imgs_train,
-            window_size=self.window_size,
-            nb_batches=self.num_samples//self.batchsize,
-            batch_size=self.batchsize,
-            upsample=self.upsample,
+        print("Creating patches for training set...")
+        self.X_train, self.y_train = generate_samples(
+            imgs=self.imgs_train,
+            gt_imgs=self.gt_imgs_train,
+            augm_patch_size=self.window_size,
+            nb_samples=self.num_samples
         )
-        self.X_test,self.y_test = create_windows_gt(
-            images=self.imgs_test,
-            gt_images=self.gt_imgs_test,
-            window_size=self.window_size)
-        self.X_validation,self.y_validation = create_windows_gt(
+        print("Creating patches for validation set...")
+        self.X_validation,self.y_validation = create_patches_test_set(
             images=self.imgs_validation,
-            gt_images=self.gt_imgs_validation,
-            window_size=self.window_size)
+            aug_patch_size=self.window_size,
+            patch_size=self.patch_size,
+            gt_imgs=self.gt_imgs_validation
+        )
         print("Done!")
 
     def create_dataloader(self):
@@ -213,11 +205,6 @@ class AdvancedProcessing:
 
         self.validate_dataloader = DataLoader(
                                 dataset=list(zip(self.X_validation, self.y_validation)),
-                                batch_size=self.batchsize,
-                                shuffle=False,
-                                num_workers=self.num_workers)
-        self.test_dataloader = DataLoader(
-                                dataset=list(zip(self.X_test, self.y_test)),
                                 batch_size=self.batchsize,
                                 shuffle=False,
                                 num_workers=self.num_workers)

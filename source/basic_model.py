@@ -71,13 +71,7 @@ class ResNet(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
-
-        # Check if the input size is smaller than the kernel size of the average pooling layer
-        if out.size(-1) < 4 or out.size(-2) < 4:
-            out = F.adaptive_avg_pool2d(out, (1, 1))
-        else:
-            out = self.avg_pool(out)
-
+        out = self.avg_pool(out)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
