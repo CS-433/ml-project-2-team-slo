@@ -23,6 +23,7 @@ class TestData:
     def __init__(
         self,
         model,
+        standardize=False,
         batchsize=constants.BATCH_SIZE,
         num_workers=constants.NUM_WORKERS,
         patch_size=constants.PATCH_SIZE,
@@ -30,6 +31,7 @@ class TestData:
     ):
         """Constructor."""
         self.model = model
+        self.standardize = standardize
         self.batchsize = batchsize
         self.imgs = np.array([])
         self.test_dataloader = None
@@ -51,6 +53,14 @@ class TestData:
                                 dataset=self.patches,
                                 batch_size=self.batchsize,
                                 shuffle=False)
+        print("Done!")
+    def standardize_color(self):
+        """Standardize the images."""
+        print("Standardizing...")
+        means = np.mean(self.imgs, axis=(0, 1, 2))
+        stds = np.std(self.imgs, axis=(0, 1, 2))
+        for i in range(constants.NUM_CHANNELS):
+            self.imgs[:, :, :, i] = (self.imgs[:, :, :, i] - means[i]) / stds[i]
         print("Done!")
     def format_data(self):
         """Format the data to be used by the model."""
@@ -77,6 +87,8 @@ class TestData:
     def proceed(self):
         """Process all the steps."""
         self.load_data()
+        if self.standardize:
+            self.standardize_color()
         self.format_data()
         self.create_dataloader()
         self.prediction()
