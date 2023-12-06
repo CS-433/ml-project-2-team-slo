@@ -26,7 +26,7 @@ NB_IMAGES = 100
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 FOREGROUND_THRESHOLD = 0.25
 NUM_WORKERS = 2 if torch.cuda.is_available() else 0
-WINDOW_SIZE = 120
+WINDOW_SIZE = 16
 #DATA SIZE
 TEST_RATIO = 0.1
 VALIDATION_RATIO = 0.3

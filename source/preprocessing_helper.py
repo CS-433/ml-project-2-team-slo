@@ -9,6 +9,7 @@ import numpy
 import matplotlib.pyplot as plt
 from scipy import misc
 from scipy.ndimage import rotate
+from visualization import visualize_patch
 
 
 def img_crop(im, w, h):

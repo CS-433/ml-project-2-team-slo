@@ -66,9 +66,6 @@ class Basic_CNN(nn.Module):
     def train_model(self, optimizer, scheduler, criterion, train_loader, val_loader, num_epochs=10):
         """Train the model with early stopping and tolerance."""
         self.to(self.device)
-        
-        best_val_loss = float('inf')
-        consecutive_no_improvement = 0
 
         for epoch in range(num_epochs):
             self.train()

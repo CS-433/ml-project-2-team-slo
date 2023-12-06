@@ -21,6 +21,12 @@ def load_image(infilename):
     data = mpimg.imread(infilename)
     return data
 
+def value_to_class(patch):
+    patch_mean = np.mean(patch)
+    if patch_mean > foreground_threshold:
+        return 1
+    else:
+        return 0
 
 def img_float_to_uint8(img):
     """Convert float image to uint8.
