@@ -11,7 +11,6 @@ from torchvision.transforms import v2
 import constants
 from scipy.ndimage import rotate
 from helpers import value_to_class, img_crop
-from visualization import visualize_patch
             
 def create_patches_test_set(images,aug_patch_size,patch_size,gt_imgs = None):
     """Create augmented patches from images.
@@ -88,17 +87,17 @@ def generate_samples(imgs, gt_imgs, augm_patch_size, nb_samples):
     count = 0
     img_index = np.random.randint(0, len(imgs))
     while len(labels) < nb_samples:
-        if(count % 32 == 0):
+        if(count % constants.BATCH_SIZE == 0):
+            img,gt = padded_images[img_index], gt_imgs[img_index]
             img_index = np.random.randint(0, len(imgs))
-        img,gt = padded_images[img_index], gt_imgs[img_index]
-        rotate_prob = np.random.rand()
-        if rotate_prob <= 0.1:
-            angle = np.random.randint(20, 45)
-            img = rotate(img, angle=angle, reshape=False)
-            boundary = int((img.shape[0] - img.shape[1] / np.sqrt(2)) / 2)
-            img = img[boundary:-boundary, boundary:-boundary,:]
-            gt = rotate(gt, angle=angle, reshape=False)
-            gt = gt[boundary:-boundary, boundary:-boundary]
+            rotate_prob = np.random.rand()
+            if rotate_prob <= 0.25:
+                angle = 45
+                img = rotate(img, angle=angle, reshape=False)
+                boundary = int((img.shape[0] - img.shape[1] / np.sqrt(2)) / 2)
+                img = img[boundary:-boundary, boundary:-boundary,:]
+                gt = rotate(gt, angle=angle, reshape=False)
+                gt = gt[boundary:-boundary, boundary:-boundary]
         feature, label = generate_single_sample(img,gt, pad_size,half_patch)
         if label == 1:
             if nb_road < nb_samples//2:
