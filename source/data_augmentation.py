@@ -11,6 +11,7 @@ from torchvision.transforms import v2
 import constants
 from scipy.ndimage import rotate
 from helpers import value_to_class, img_crop
+from visualization import visualize_patch
             
 def create_patches_test_set(images,aug_patch_size,patch_size,gt_imgs = None):
     """Create augmented patches from images.
@@ -74,7 +75,7 @@ def generate_samples(imgs, gt_imgs, augm_patch_size, nb_samples):
         numpy array: Augmented patches.
         numpy array: Augmented ground truth patches.
     """
-    np.random.seed(0)
+    np.random.seed(123456)
     half_patch = constants.PATCH_SIZE // 2
     pad_size = (augm_patch_size - constants.PATCH_SIZE)//2
     padded_images = [pading_img(im, pad_size) for im in imgs]
@@ -116,12 +117,11 @@ def generate_samples(imgs, gt_imgs, augm_patch_size, nb_samples):
 def generate_single_sample(img, gt, pad_size, half_patch):
     im_width = gt.shape[0]
     im_height = gt.shape[1]
-    x_coord = np.random.randint(half_patch+pad_size, im_width - half_patch - pad_size)
-    y_coord = np.random.randint(half_patch+pad_size, im_height - half_patch - pad_size)
+    x_coord = np.random.randint(half_patch, im_width - half_patch)
+    y_coord = np.random.randint(half_patch, im_height - half_patch)
     patch_coord = {'x': x_coord, 'y': y_coord}
-
-    features = img[patch_coord['x'] - half_patch-pad_size:patch_coord['x'] + half_patch + pad_size,
-           patch_coord['y'] - half_patch-pad_size:patch_coord['y'] + half_patch + pad_size]
+    features = img[patch_coord['x'] - half_patch:patch_coord['x'] + half_patch + 2*pad_size,
+           patch_coord['y'] - half_patch:patch_coord['y'] + half_patch + 2*pad_size]
     y = gt[patch_coord['x'] - half_patch:patch_coord['x'] + half_patch,
            patch_coord['y'] - half_patch:patch_coord['y'] + half_patch]
     label = value_to_class(y)

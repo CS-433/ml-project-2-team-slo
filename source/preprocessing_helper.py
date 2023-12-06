@@ -131,7 +131,9 @@ def image_generator(images, ground_truths, window_size,nb_batches, batch_size = 
                 boundary = 0
             center_x = np.random.randint(half_patch + boundary, imgWidth  - half_patch - boundary)
             center_y = np.random.randint(half_patch + boundary, imgHeight - half_patch - boundary)
-            
+            print(img.shape)
+            print(gt.shape)
+            print(imgWidth)
             x = img[center_x - half_patch:center_x + half_patch + 2 * padSize,
                     center_y  - half_patch:center_y + half_patch + 2 * padSize]
             y = gt[center_x - half_patch : center_x + half_patch,
