@@ -16,7 +16,7 @@ import constants
 from helpers import *
 from preprocessing_helper import *
 from load_datas import load_datas
-from data_augmentation import generate_batch
+from data_augmentation import create_samples, create_test_set
 
 class BasicProcessing:
     """Class to process all datas. All the attributes are numpy arrays."""
@@ -118,7 +118,7 @@ class AdvancedProcessing:
     def __init__(self, 
                  nb_images=constants.NB_IMAGES, 
                  patch_size=constants.PATCH_SIZE,
-                 window_size=constants.WINDOW_SIZE,
+                 aug_patch_size=constants.AUG_PATCH_SIZE,
                  threshold=constants.FOREGROUND_THRESHOLD,
                  validation_size=constants.VALIDATION_RATIO,
                  batchsize=constants.BATCH_SIZE,
@@ -133,7 +133,7 @@ class AdvancedProcessing:
         """
         self.nb_images = nb_images
         self.patch_size = patch_size
-        self.window_size = window_size
+        self.aug_patch_size = aug_patch_size
         self.threshold = threshold
         self.validation_size = validation_size
         self.batchsize = batchsize
@@ -179,19 +179,17 @@ class AdvancedProcessing:
         """Create patches from the images."""
         print("Creating patches...")
         print("Creating patches for training set...")
-        self.X_train, self.y_train = generate_batch(
-            images=self.imgs_train,
-            ground_truths=self.gt_imgs_train,
-            augm_patch_size=self.window_size,
-            nb_batches=2000,
-            batch_size=self.batchsize,
-            upsample=self.upsample,
-        )
+        self.X_train, self.y_train = create_samples(
+            self.imgs_train,
+            self.gt_imgs_train,
+            self.aug_patch_size,
+            self.num_samples,
+            self.batchsize)
         print("Creating patches for validation set...")
-        self.X_validation,self.y_validation = create_windows_gt(
+        self.X_validation,self.y_validation = create_test_set(
             images=self.imgs_validation,
             gt_images=self.gt_imgs_validation,
-            augm_patch_size=self.window_size)
+            augm_patch_size=self.aug_patch_size)
         print("Done!")
 
     def create_dataloader(self):
