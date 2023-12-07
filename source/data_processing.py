@@ -188,7 +188,7 @@ class AdvancedProcessing:
         self.X_validation,self.y_validation = create_test_set(
             images=self.imgs_validation,
             gt_images=self.gt_imgs_validation,
-            augm_patch_size=self.aug_patch_size)
+            aug_patch_size=self.aug_patch_size)
         print("Done!")
 
     def create_dataloader(self):

@@ -79,7 +79,7 @@ def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size):
         Y.append(list_labels)
     X = np.array(X)
     Y = np.array(Y)
-    X = X.reshape(-1, augm_patch_size, augm_patch_size, 3)
+    X = X.reshape(-1, aug_patch_size, aug_patch_size, 3)
     Y = Y.reshape(-1,)
     X = X.transpose(0, 3, 1, 2)
     print('end process...')

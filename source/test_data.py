@@ -67,9 +67,9 @@ class TestData:
         self.patches = create_test_set(self.imgs, self.aug_patch_size)
         print("Done!")
 
-    def create_submission(self):
+    def create_submission(self,pred):
         images_filenames = save_pred_as_png(
-            self.pred, 
+            pred, 
             len(self.imgs), 
             self.patch_size, 
             label_to_img,

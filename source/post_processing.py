@@ -10,7 +10,7 @@ from PIL import Image
 import numpy as np
 import os
 
-def save_pred_as_png(sub_preds,nb_imgs,patch_size,label_to_img,folder_path):
+def save_pred_as_png(sub_preds,nb_imgs,patch_size,label_to_img,folder_path='../data/submission/'):
     images_filenames = []
 
     nb_patches_per_img = len(sub_preds) // nb_imgs
@@ -37,7 +37,7 @@ def save_pred_as_png(sub_preds,nb_imgs,patch_size,label_to_img,folder_path):
         # Save the image as PNG
 
 
-        filename = f'output/preds_{i+1}.png'
+        filename = f'{folder_path}preds_{i+1}.png'
         images_filenames.append(filename)
         predicted_img_pil.save(filename)
     return images_filenames
