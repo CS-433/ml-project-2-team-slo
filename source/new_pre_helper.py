@@ -34,10 +34,8 @@ def pad_image(img, padSize):
     return np.pad(img,((padSize,padSize),(padSize,padSize),(0,0)),'reflect')
 
 
-def new_image_generator(imgs, gt_imgs,rotated_imgs,rotated_gt_imgs, window_size,num_samples, batch_size):
+def new_image_generator(imgs, gt_imgs, window_size,num_samples, batch_size):
     np.random.seed(0)
-    imgWidth = imgs[0].shape[0]
-    imgHeight = imgs[0].shape[1]
     half_patch = constants.PATCH_SIZE // 2
     
     padSize = (window_size - constants.PATCH_SIZE) // 2
@@ -45,22 +43,27 @@ def new_image_generator(imgs, gt_imgs,rotated_imgs,rotated_gt_imgs, window_size,
 
     X = []
     Y = []
+    rotated_imgs, rotated_gt_imgs = rotate_imgs_train(aug_imgs, gt_imgs)
     nb_batches = num_samples // batch_size
     for i in range(nb_batches):
         if i % (nb_batches/10) == 0:
             print(f'Batch {i+1}/{nb_batches}')
         list_patches = []
         list_labels = [] 
-        boundary = 0
-        img, gt,boundary = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
-        gt_count = 0
-        img_count = 0
+
+        img, gt,center_limit = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
+
+        gt_count = 0 #background
+        img_count = 0 #road
         count = 0
+
         while len(list_patches) < batch_size:
             if count == 10 * batch_size:
-                img, gt,boundary = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
+                img, gt,center_limit = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
                 count = 0
-            img_patch, label = create_sample(img,gt,half_patch,boundary,padSize)
+
+            img_patch, label = create_sample(img,gt,half_patch,center_limit,padSize)
+
             if label == 0:
                 if gt_count != batch_size // 2:
                     list_patches.append(img_patch)
@@ -93,8 +96,8 @@ def rotate_imgs_train(imgs_train, gt_imgs_train):
     for angle in angles:
         print(f'Rotation for {angle} degrees')
         for img,gt in zip(imgs_train,gt_imgs_train):
-            rotated_imgs.append(rotate(img, angle))
-            rotated_gt_imgs.append(rotate(gt, angle))
+            rotated_imgs.append(rotate(img, angle, reshape=False))
+            rotated_gt_imgs.append(rotate(gt, angle, reshape=False))
     rotated_imgs = np.asarray(rotated_imgs)
     rotated_gt_imgs = np.asarray(rotated_gt_imgs)
     return rotated_imgs, rotated_gt_imgs
@@ -104,24 +107,23 @@ def choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs):
         img_index = np.random.randint(len(rotated_imgs))
         img = rotated_imgs[img_index]
         gt = rotated_gt_imgs[img_index]
-        boundary = int((img.shape[0] - img.shape[0] / np.sqrt(2)) / 2)
+        center_limit = int((rotated_gt_imgs.shape[0] - rotated_gt_imgs.shape[0] / np.sqrt(2)) / 2)
     else:
         img_index = np.random.randint(len(aug_imgs))
         img = aug_imgs[img_index]
         gt = gt_imgs[img_index]
-        boundary = 0
-    return img, gt,boundary
+        center_limit = 0
+    return img, gt,center_limit
 
 def create_sample(img,gt,half_patch,center_limit,size_pading):
     img_width = gt.shape[0]
     img_height = gt.shape[1]
-    x_coord = np.random.randint(half_patch + center_limit, img_width - half_patch - center_limit)
-    y_coord = np.random.randint(half_patch + center_limit, img_height - half_patch - center_limit)
-    patch_coord = {'x':x_coord,'y':y_coord}
-    aug_patch_coord = {'x':x_coord + size_pading,'y':y_coord + size_pading}
-    img_patch = img[aug_patch_coord['x'] - half_patch-size_pading:aug_patch_coord['x'] + half_patch + size_pading,
-            aug_patch_coord['y']  - half_patch - size_pading: aug_patch_coord['y'] + half_patch + size_pading]
-    gt_patch = gt[patch_coord['x'] - half_patch : patch_coord['x'] + half_patch,
-            patch_coord['y'] - half_patch : patch_coord['y'] + half_patch]
-    label = value_to_class(np.mean(gt_patch))
-    return img_patch, label
+    center_x = np.random.randint(half_patch + center_limit, img_width  - half_patch - center_limit)
+    center_y = np.random.randint(half_patch + center_limit, img_height - half_patch - center_limit)
+    
+    x = img[center_x - half_patch:center_x + half_patch + 2 * size_pading,
+            center_y  - half_patch:center_y + half_patch + 2 * size_pading]
+    y = gt[center_x - half_patch : center_x + half_patch,
+            center_y - half_patch : center_y + half_patch]
+    label = value_to_class(np.mean(y))
+    return x, label
