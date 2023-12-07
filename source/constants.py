@@ -15,7 +15,7 @@ TRAIN_DIR = ROOT_DIR + "training/"
 TEST_DIR = ROOT_DIR + "test_set_images/"
 IMAGE_DIR = os.path.join(TRAIN_DIR, "images/")
 GT_DIR = TRAIN_DIR + "groundtruth/"
-RESULTS_FOLDER_PATH = '../data/submissions/'
+MODELS_DIR = "../models/"   
 
 #Image parameters
 PATCH_SIZE = 16

@@ -3,24 +3,27 @@ import constants
 from scipy.ndimage import rotate
 from helpers import *
 
-def create_test_set(images, gt_images, augm_patch_size):
+def create_test_set(images, aug_patch_size, gt_images=None):
     # Fonction testée et donne les mêmes résultats que create_windows_gt
     list_patches = []
     list_labels = []
     for im in images:
         imgwidth = im.shape[0]
         imgheight = im.shape[1]
-        size_padding = (augm_patch_size - constants.PATCH_SIZE)//2
+        size_padding = (aug_patch_size - constants.PATCH_SIZE)//2
         padded_im = pad_image(im, size_padding)
         for i in range(size_padding, imgheight + size_padding, constants.PATCH_SIZE):
             for j in range(size_padding,imgwidth + size_padding, constants.PATCH_SIZE): 
                 im_patch = padded_im[j-size_padding:j+constants.PATCH_SIZE+size_padding, i-size_padding:i+constants.PATCH_SIZE+size_padding, :]
                 list_patches.append(im_patch)
-    gt_patches = [img_crop(gt_img, constants.PATCH_SIZE, constants.PATCH_SIZE) for gt_img in gt_images]
-    gt_patches = [patch for patches in gt_patches for patch in patches]
-    list_labels = [value_to_class(patch) for patch in gt_patches]
-    list_labels = np.asarray(list_labels)
     list_patches = np.asarray(list_patches)
+    if gt_images is not None:
+        gt_patches = [img_crop(gt_img, constants.PATCH_SIZE, constants.PATCH_SIZE) for gt_img in gt_images]
+        gt_patches = [patch for patches in gt_patches for patch in patches]
+        list_labels = [value_to_class(patch) for patch in gt_patches]
+        list_labels = np.asarray(list_labels)
+    else:
+        return np.transpose(list_patches, (0, 3, 1, 2))
     return np.transpose(list_patches, (0, 3, 1, 2)), list_labels
 
 def pad_image(img, padSize):

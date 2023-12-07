@@ -21,14 +21,14 @@ class TestData:
     """ Class to process test datas"""
     def __init__(
         self,
-        model,
+        standardize=False,
         batchsize=constants.BATCH_SIZE,
         num_workers=constants.NUM_WORKERS,
         patch_size=constants.PATCH_SIZE,
         aug_patch_size=constants.AUG_PATCH_SIZE
     ):
         """Constructor."""
-        self.model = model
+        self.standardize = standardize
         self.batchsize = batchsize
         self.imgs = np.array([])
         self.test_dataloader = None
@@ -66,11 +66,6 @@ class TestData:
         print("Formatting data...")
         self.patches = create_test_set(self.imgs, self.aug_patch_size)
         print("Done!")
-    def prediction(self):
-        """Create prediction from the model."""
-        print("Creating prediction...")
-        self.pred = self.model.predict(self.test_dataloader)
-        print("Done!")
 
     def create_submission(self):
         images_filenames = save_pred_as_png(
@@ -86,8 +81,7 @@ class TestData:
     def proceed(self):
         """Process all the steps."""
         self.load_data()
-        self.standardize_color()
+        if self.standardize:
+            self.standardize_color()
         self.format_data()
         self.create_dataloader()
-        self.prediction()
-        self.create_submission()
