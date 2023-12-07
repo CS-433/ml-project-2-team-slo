@@ -14,7 +14,7 @@ def new_create_windows_gt(images, gt_images, augm_patch_size):
     # Fonction testée et donne les mêmes résultats que create_windows_gt
     list_patches = []
     list_labels = []
-    for im in images:
+    for im,gt in zip(images,gt_images):
         imgwidth = im.shape[0]
         imgheight = im.shape[1]
         padSize = (augm_patch_size - constants.PATCH_SIZE)//2
@@ -22,10 +22,10 @@ def new_create_windows_gt(images, gt_images, augm_patch_size):
         for i in range(padSize, imgheight + padSize, constants.PATCH_SIZE):
             for j in range(padSize,imgwidth + padSize, constants.PATCH_SIZE): 
                 im_patch = padded_im[j-padSize:j+constants.PATCH_SIZE+padSize, i-padSize:i+constants.PATCH_SIZE+padSize, :]
+        
+                gt_im_patch = gt[j-padSize:j+constants.PATCH_SIZE+padSize, i-padSize:i+constants.PATCH_SIZE+padSize]
                 list_patches.append(im_patch)
-    gt_patches = [img_crop(gt, constants.PATCH_SIZE, constants.PATCH_SIZE) for gt in gt_images]
-    gt_patches = [patch for patches in gt_patches for patch in patches]
-    list_labels = [value_to_class(np.mean(patch)) for patch in gt_patches]
+                list_labels.append(value_to_class(gt_im_patch))
     list_labels = np.asarray(list_labels)
     list_patches = np.asarray(list_patches)
     return np.transpose(list_patches, (0, 3, 1, 2)), list_labels
