@@ -1,9 +1,16 @@
 import numpy as np
+import os
+import sys
+import matplotlib.image as mpimg
 import constants
+import numpy
+import matplotlib.pyplot as plt
+from scipy import misc
 from scipy.ndimage import rotate
+from visualization import visualize_patch
 from helpers import *
 
-def create_test_set(images, gt_images, augm_patch_size):
+def new_create_windows_gt(images, gt_images, augm_patch_size):
     # Fonction testée et donne les mêmes résultats que create_windows_gt
     list_patches = []
     list_labels = []
@@ -27,7 +34,7 @@ def pad_image(img, padSize):
     return np.pad(img,((padSize,padSize),(padSize,padSize),(0,0)),'reflect')
 
 
-def create_samples(imgs, gt_imgs, window_size,num_samples, batch_size):
+def new_image_generator(imgs, gt_imgs, window_size,num_samples, batch_size):
     np.random.seed(0)
     half_patch = constants.PATCH_SIZE // 2
     
@@ -55,7 +62,7 @@ def create_samples(imgs, gt_imgs, window_size,num_samples, batch_size):
                 img, gt,center_limit = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
                 count = 0
 
-            img_patch, label = create_single_sample(img,gt,half_patch,center_limit,padSize)
+            img_patch, label = create_sample(img,gt,half_patch,center_limit,padSize)
 
             if label == 0:
                 if gt_count != batch_size // 2:
@@ -108,7 +115,7 @@ def choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs):
         center_limit = 0
     return img, gt,center_limit
 
-def create_single_sample(img,gt,half_patch,center_limit,size_pading):
+def create_sample(img,gt,half_patch,center_limit,size_pading):
     img_width = gt.shape[0]
     img_height = gt.shape[1]
     center_x = np.random.randint(half_patch + center_limit, img_width  - half_patch - center_limit)
