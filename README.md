@@ -77,8 +77,13 @@ To solve the problems mentionned in the abstract, the following solutions are pr
 
 ## Results
 
-| Model                                  | Accuracy | F1-score | AICrowd score | AICrowd secondary score |
-|----------------------------------------|----------|----------|---------------|-------------------------|
-| Logistic regression                    |          |          |               |                         |
-| Basic ConvNet with normal processing   |          |          |               |                         |
-| Basic Convent with Advanced processing |          |          |               |                         |
+| Model                              | Patch size | Optimizer    | Accuracy | F1-score | AICrowd F1-Score | AICrowd accuracy |
+|------------------------------------|------------|--------------|----------|----------|------------------|------------------|
+| Basic                              | 16         | Adam         | 0.807    | 0.686    | -                | -                |
+| Basic                              | 32         | Adam         | 0.834    | 0.724    | -                | -                |
+| Basic                              | 64         | Adam         | 0.843    | 0.731    | -                | -                |
+| Advanced                           | 64         | Adam         | 0.887    | 0.784    | -                | -                |
+| Advanced                           | 128        | Adam         | 0.908    | 0.826    | 0.856            | 0.921            |
+| Advanced (+ color standardization) | 128        | Adam         | 0.924    | 0.854    | 0.868            | 0.929            |
+| Advanced (+ color standardization) | 128        | AdamW        | 0.919    | 0.847    | 0.866            | 0.928            |
+| Advanced (+ color standardization) | 128        | SGD Nesterov |          |          |                  |                  |
