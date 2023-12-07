@@ -78,7 +78,7 @@ class TestData:
             len(self.imgs), 
             self.patch_size, 
             label_to_img,
-            folder_path='../data/submission/output')
+            folder_path=constants.RESULTS_FOLDER_PATH)
         
         masks_to_submission('submission.csv', *images_filenames)
         print("Submission created!")

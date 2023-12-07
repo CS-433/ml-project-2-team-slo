@@ -27,12 +27,12 @@ def pad_image(img, padSize):
     return np.pad(img,((padSize,padSize),(padSize,padSize),(0,0)),'reflect')
 
 
-def create_samples(imgs, gt_imgs, window_size,num_samples, batch_size):
+def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size):
     np.random.seed(0)
     half_patch = constants.PATCH_SIZE // 2
     
-    padSize = (window_size - constants.PATCH_SIZE) // 2
-    aug_imgs = [pad_image(image,padSize) for image in imgs]
+    size_padding = (aug_patch_size - constants.PATCH_SIZE) // 2
+    aug_imgs = [pad_image(image,size_padding) for image in imgs]
 
     X = []
     Y = []
@@ -55,7 +55,7 @@ def create_samples(imgs, gt_imgs, window_size,num_samples, batch_size):
                 img, gt,center_limit = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
                 count = 0
 
-            img_patch, label = create_single_sample(img,gt,half_patch,center_limit,padSize)
+            img_patch, label = create_single_sample(img,gt,half_patch,center_limit,size_padding)
 
             if label == 0:
                 if gt_count != batch_size // 2:
@@ -76,7 +76,7 @@ def create_samples(imgs, gt_imgs, window_size,num_samples, batch_size):
         Y.append(list_labels)
     X = np.array(X)
     Y = np.array(Y)
-    X = X.reshape(-1, window_size, window_size, 3)
+    X = X.reshape(-1, augm_patch_size, augm_patch_size, 3)
     Y = Y.reshape(-1,)
     X = X.transpose(0, 3, 1, 2)
     print('end process...')
