@@ -14,18 +14,18 @@ def new_create_windows_gt(images, gt_images, augm_patch_size):
     # Fonction testée et donne les mêmes résultats que create_windows_gt
     list_patches = []
     list_labels = []
-    for im,gt in zip(images,gt_images):
+    for im in images:
         imgwidth = im.shape[0]
         imgheight = im.shape[1]
-        padSize = (augm_patch_size - constants.PATCH_SIZE)//2
-        padded_im = pad_image(im, padSize)
-        for i in range(padSize, imgheight + padSize, constants.PATCH_SIZE):
-            for j in range(padSize,imgwidth + padSize, constants.PATCH_SIZE): 
-                im_patch = padded_im[j-padSize:j+constants.PATCH_SIZE+padSize, i-padSize:i+constants.PATCH_SIZE+padSize, :]
-        
-                gt_im_patch = gt[j-padSize:j+constants.PATCH_SIZE+padSize, i-padSize:i+constants.PATCH_SIZE+padSize]
+        size_padding = (augm_patch_size - constants.PATCH_SIZE)//2
+        padded_im = pad_image(im, size_padding)
+        for i in range(size_padding, imgheight + size_padding, constants.PATCH_SIZE):
+            for j in range(size_padding,imgwidth + size_padding, constants.PATCH_SIZE): 
+                im_patch = padded_im[j-size_padding:j+constants.PATCH_SIZE+size_padding, i-size_padding:i+constants.PATCH_SIZE+size_padding, :]
                 list_patches.append(im_patch)
-                list_labels.append(value_to_class(gt_im_patch))
+    gt_patches = [img_crop(gt_img, constants.PATCH_SIZE, constants.PATCH_SIZE) for gt_img in gt_images]
+    gt_patches = [patch for patches in gt_patches for patch in patches]
+    list_labels = [value_to_class(patch) for patch in gt_patches]
     list_labels = np.asarray(list_labels)
     list_patches = np.asarray(list_patches)
     return np.transpose(list_patches, (0, 3, 1, 2)), list_labels
