@@ -15,7 +15,7 @@ from helpers import *
 class Basic_CNN(nn.Module):
     def __init__(
             self,
-            patch_size=constants.WINDOW_SIZE):
+            patch_size=constants.AUG_PATCH_SIZE):
         """Constructor."""
         super(Basic_CNN, self).__init__()
 

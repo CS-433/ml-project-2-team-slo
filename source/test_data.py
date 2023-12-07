@@ -15,8 +15,7 @@ from load_datas import load_test_datas
 from helpers import masks_to_submission
 from post_processing import save_pred_as_png
 from visualization import label_to_img
-from preprocessing_helper import create_windows
-
+from data_augmentation import create_test_set
 
 class TestData:
     """ Class to process test datas"""
@@ -26,7 +25,7 @@ class TestData:
         batchsize=constants.BATCH_SIZE,
         num_workers=constants.NUM_WORKERS,
         patch_size=constants.PATCH_SIZE,
-        window_size=constants.WINDOW_SIZE
+        aug_patch_size=constants.AUG_PATCH_SIZE
     ):
         """Constructor."""
         self.model = model
@@ -36,7 +35,7 @@ class TestData:
         self.num_workers = num_workers
         self.pred = None
         self.patch_size = patch_size
-        self.window_size = window_size
+        self.aug_patch_size = aug_patch_size
 
     def load_data(self):
         """Load the data."""
@@ -65,7 +64,7 @@ class TestData:
     def format_data(self):
         """Format the data to be used by the model."""
         print("Formatting data...")
-        self.patches = create_windows(self.imgs, self.window_size)
+        self.patches = create_test_set(self.imgs, self.aug_patch_size)
         print("Done!")
     def prediction(self):
         """Create prediction from the model."""
