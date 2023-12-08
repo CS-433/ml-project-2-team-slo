@@ -47,7 +47,7 @@ def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size):
         list_patches = []
         list_labels = [] 
 
-        img, gt,center_limit = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
+        img, gt = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
 
         gt_count = 0 #background
         img_count = 0 #road
@@ -55,10 +55,10 @@ def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size):
 
         while len(list_patches) < batch_size:
             if count == 10 * batch_size:
-                img, gt,center_limit = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
+                img, gt = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
                 count = 0
 
-            img_patch, label = create_single_sample(img,gt,half_patch,center_limit,size_padding)
+            img_patch, label = create_single_sample(img,gt,half_patch,size_padding)
 
             if label == 0:
                 if gt_count != batch_size // 2:
@@ -92,8 +92,8 @@ def rotate_imgs_train(imgs_train, gt_imgs_train):
     for angle in angles:
         print(f'Rotation for {angle} degrees')
         for img,gt in zip(imgs_train,gt_imgs_train):
-            rotated_imgs.append(rotate(img, angle, reshape=False))
-            rotated_gt_imgs.append(rotate(gt, angle, reshape=False))
+            rotated_imgs.append(rotate(img, angle, reshape=False, mode='mirror'))
+            rotated_gt_imgs.append(rotate(gt, angle, reshape=False, mode='mirror'))
     rotated_imgs = np.asarray(rotated_imgs)
     rotated_gt_imgs = np.asarray(rotated_gt_imgs)
     return rotated_imgs, rotated_gt_imgs
@@ -103,23 +103,21 @@ def choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs):
         img_index = np.random.randint(len(rotated_imgs))
         img = rotated_imgs[img_index]
         gt = rotated_gt_imgs[img_index]
-        center_limit = int((rotated_gt_imgs.shape[0] - rotated_gt_imgs.shape[0] / np.sqrt(2)) / 2)
     else:
         img_index = np.random.randint(len(aug_imgs))
         img = aug_imgs[img_index]
         gt = gt_imgs[img_index]
-        center_limit = 0
-    return img, gt,center_limit
+    return img, gt
 
-def create_single_sample(img,gt,half_patch,center_limit,size_pading):
+def create_single_sample(img,gt,half_patch,size_pading):
     img_width = gt.shape[0]
     img_height = gt.shape[1]
-    center_x = np.random.randint(half_patch + center_limit, img_width  - half_patch - center_limit)
-    center_y = np.random.randint(half_patch + center_limit, img_height - half_patch - center_limit)
-    
-    x = img[center_x - half_patch:center_x + half_patch + 2 * size_pading,
-            center_y  - half_patch:center_y + half_patch + 2 * size_pading]
-    y = gt[center_x - half_patch : center_x + half_patch,
-            center_y - half_patch : center_y + half_patch]
-    label = value_to_class(np.mean(y))
-    return x, label
+    x_coord = np.random.randint(half_patch, img_width  - half_patch)
+    y_coord = np.random.randint(half_patch, img_height - half_patch)
+    patch_coord = {'x': x_coord, 'y': y_coord}
+    img = img[patch_coord['x'] - half_patch:patch_coord['x'] + half_patch + 2 * size_pading,
+            patch_coord['y']  - half_patch:patch_coord['y'] + half_patch + 2 * size_pading]
+    gt_img = gt[patch_coord['x'] - half_patch : patch_coord['x'] + half_patch,
+            patch_coord['y'] - half_patch : patch_coord['y'] + half_patch]
+    label = value_to_class(np.mean(gt_img))
+    return img, label
