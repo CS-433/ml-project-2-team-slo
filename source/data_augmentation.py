@@ -1,6 +1,7 @@
 import numpy as np
 import constants
 from scipy.ndimage import rotate
+from scipy.ndimage import gaussian_filter
 from helpers import *
 
 def create_test_set(images, aug_patch_size, gt_images=None):
@@ -40,6 +41,7 @@ def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size):
     X = []
     Y = []
     rotated_imgs, rotated_gt_imgs = rotate_imgs_train(aug_imgs, gt_imgs)
+    blured_imgs = blur_images(aug_imgs)
     nb_batches = num_samples // batch_size
     for i in range(nb_batches):
         if i % (nb_batches/10) == 0:
@@ -47,7 +49,7 @@ def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size):
         list_patches = []
         list_labels = [] 
 
-        img, gt = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
+        img, gt = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs,blured_imgs)
 
         gt_count = 0 #background
         img_count = 0 #road
@@ -55,7 +57,7 @@ def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size):
 
         while len(list_patches) < batch_size:
             if count == 10 * batch_size:
-                img, gt = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs)
+                img, gt = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs,blured_imgs)
                 count = 0
 
             img_patch, label = create_single_sample(img,gt,half_patch,size_padding)
@@ -98,11 +100,27 @@ def rotate_imgs_train(imgs_train, gt_imgs_train):
     rotated_gt_imgs = np.asarray(rotated_gt_imgs)
     return rotated_imgs, rotated_gt_imgs
 
-def choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs):
+def blur_images(imgs_train,sigma=constants.SIGMA):
+    blurred_imgs = []
+
+    for img in imgs_train:
+        blurred_image = np.zeros_like(img)
+        for channel in range(img.shape[2]):
+            blurred_image[:, :, channel] = gaussian_filter(img[:, :, channel], sigma)
+        blurred_imgs.append(blurred_image)
+    blurred_imgs = np.asarray(blurred_imgs)
+
+    return blurred_imgs
+
+def choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs,blured_imgs):
     if (np.random.randn() <= 0.1):
         img_index = np.random.randint(len(rotated_imgs))
         img = rotated_imgs[img_index]
         gt = rotated_gt_imgs[img_index]
+    elif (np.random.randn() > 0.9):
+        img_index = np.random.randint(len(blured_imgs))
+        img = blured_imgs[img_index]
+        gt = gt_imgs[img_index]
     else:
         img_index = np.random.randint(len(aug_imgs))
         img = aug_imgs[img_index]
