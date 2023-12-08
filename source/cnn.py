@@ -11,7 +11,10 @@ import constants
 from helpers import *
 
 class CNN(nn.Module):
-    def __init__(self):
+    def __init__(self,threshold=constants.FOREGROUND_THRESHOLD):
+
+        self.threshold = threshold
+
         super(CNN, self).__init__()
 
     def train_model(self, optimizer, scheduler, criterion, train_loader, val_loader, num_epochs=10):
@@ -48,7 +51,7 @@ class CNN(nn.Module):
                 for input, target in val_loader:
                     input, target = input.to(self.device), target.to(self.device)
                     output = self(input)
-                    predictions = (output > constants.FOREGROUND_THRESHOLD).float()
+                    predictions = (output > self.threshold).float()
                     target = target.float().view(-1, 1)
                     total_correct += (predictions == target).sum().item()
                     test_loss += criterion(output, target).item() * len(input)
@@ -80,7 +83,7 @@ class CNN(nn.Module):
             for input in test_loader:
                 input = input.to(device)
                 output = self(input)
-                output = (output > constants.FOREGROUND_THRESHOLD).float()
+                output = (output > self.threshold).float()
                 predictions.append(output.cpu())
 
         return torch.cat(predictions).numpy().ravel()
@@ -89,7 +92,8 @@ class CNN(nn.Module):
 class Advanced_CNN(CNN):
     def __init__(
             self,
-            patch_size=constants.AUG_PATCH_SIZE):
+            patch_size=constants.AUG_PATCH_SIZE,
+            threshold = constants.FOREGROUND_THRESHOLD):
         """
         Constructor
         
@@ -113,6 +117,7 @@ class Advanced_CNN(CNN):
         - ReLU activation
         - Fully connected layer with 1 output
         """
+        self.threshold = threshold
         super(Advanced_CNN, self).__init__()
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
