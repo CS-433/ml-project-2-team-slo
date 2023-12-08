@@ -124,7 +124,8 @@ class AdvancedProcessing:
                  num_workers=constants.NUM_WORKERS,
                  num_samples=constants.TRAIN_SAMPLES,
                  upsample=True,
-                 standardize=True):
+                 standardize=True,
+                 blur=False):
         """Constructor.
         Args:
             imgs (np.ndarray): Images.
@@ -140,6 +141,7 @@ class AdvancedProcessing:
         self.upsample = upsample
         self.num_samples = num_samples
         self.standardize = standardize
+        self.blur = blur
         self.imgs = np.array([])
         self.imgs_train = np.array([])
         self.gt_imgs_train = np.array([])
@@ -183,7 +185,8 @@ class AdvancedProcessing:
             self.gt_imgs_train,
             self.aug_patch_size,
             self.num_samples,
-            self.batchsize)
+            self.batchsize,
+            self.blur)
         print("Creating patches for validation set...")
         self.X_validation,self.y_validation = create_test_set(
             images=self.imgs_validation,

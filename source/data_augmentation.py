@@ -31,7 +31,7 @@ def pad_image(img, padSize):
     return np.pad(img,((padSize,padSize),(padSize,padSize),(0,0)),'reflect')
 
 
-def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size):
+def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size,blur=False):
     np.random.seed(0)
     half_patch = constants.PATCH_SIZE // 2
     
@@ -41,7 +41,10 @@ def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size):
     X = []
     Y = []
     rotated_imgs, rotated_gt_imgs = rotate_imgs_train(aug_imgs, gt_imgs)
-    blured_imgs = blur_images(aug_imgs)
+    if blur:
+        blured_imgs = blur_images(aug_imgs)
+    else:
+        blured_imgs = None
     nb_batches = num_samples // batch_size
     for i in range(nb_batches):
         if i % (nb_batches/10) == 0:
@@ -49,7 +52,7 @@ def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size):
         list_patches = []
         list_labels = [] 
 
-        img, gt = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs,blured_imgs)
+        img, gt = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs,blured_imgs,blur)
 
         gt_count = 0 #background
         img_count = 0 #road
@@ -112,12 +115,12 @@ def blur_images(imgs_train,sigma=constants.SIGMA):
 
     return blurred_imgs
 
-def choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs,blured_imgs):
+def choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs,blured_imgs,blur):
     if (np.random.randn() <= 0.1):
         img_index = np.random.randint(len(rotated_imgs))
         img = rotated_imgs[img_index]
         gt = rotated_gt_imgs[img_index]
-    elif (np.random.randn() > 0.9):
+    elif (np.random.randn() > 0.9) and blur:
         img_index = np.random.randint(len(blured_imgs))
         img = blured_imgs[img_index]
         gt = gt_imgs[img_index]
