@@ -77,13 +77,15 @@ To solve the problems mentionned in the abstract, the following solutions are pr
 
 ## Results
 
-| Model                              | Patch size | Optimizer    | Accuracy | F1-score | AICrowd F1-Score | AICrowd accuracy |
-|------------------------------------|------------|--------------|----------|----------|------------------|------------------|
-| Basic                              | 16         | Adam         | 0.807    | 0.686    | -                | -                |
-| Basic                              | 32         | Adam         | 0.834    | 0.724    | -                | -                |
-| Basic                              | 64         | Adam         | 0.843    | 0.731    | -                | -                |
-| Advanced                           | 64         | Adam         | 0.887    | 0.784    | -                | -                |
-| Advanced                           | 128        | Adam         | 0.908    | 0.826    | 0.856            | 0.921            |
-| Advanced (+ color standardization) | 128        | Adam         | 0.924    | 0.854    | 0.868            | 0.929            |
-| Advanced (+ color standardization) | 128        | AdamW        | 0.919    | 0.847    | 0.866            | 0.928            |
-| Advanced (+ color standardization) | 128        | SGD Nesterov |          |          |                  |                  |
+| Model                              | Patch size | Optimizer    | Threshold | Accuracy | F1-score | AICrowd F1-Score | AICrowd accuracy |
+|------------------------------------|------------|--------------|-----------|----------|----------|------------------|------------------|
+| Basic                              | 16         | Adam         | 0.25      | 0.807    | 0.686    | -                | -                |
+| Basic                              | 32         | Adam         | 0.25      | 0.834    | 0.724    | -                | -                |
+| Basic                              | 64         | Adam         | 0.25      | 0.843    | 0.731    | -                | -                |
+| Advanced                           | 64         | Adam         | 0.25      | 0.887    | 0.784    | -                | -                |
+| Advanced                           | 128        | Adam         | 0.25      | 0.908    | 0.826    | 0.856            | 0.921            |
+| Advanced (+ color standardization) | 128        | Adam         | 0.25      | 0.924    | 0.854    | 0.868            | 0.929            |
+| Advanced (+ color standardization) | 128        | AdamW        | 0.25      | 0.919    | 0.847    | 0.866            | 0.928            |
+| Advanced (+ color standardization) | 128        | SGD Nesterov | 0.25      | 0.893    | 0.800    | -                | -                |
+| Advanced (+ color standardization) | 128        | Adam         | 0.3       | 0.921    | 0.852    | 0.867            | 0.929            |
+| Advanced (+ color standardization) | 128        | Adam         | 0.2       | 0.922    | 0.852    | 0.870            | 0.930            |
