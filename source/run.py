@@ -105,7 +105,8 @@ def run(data_path, csv_path, mask_path, model_path):
         # If no model path is provided, train the best model from start
         # Load the train images
         patch_size = 128
-        myDatas = AdvancedProcessing(standardize=True, aug_patch_size=patch_size)
+        standardize = True
+        myDatas = AdvancedProcessing(standardize=standardize, aug_patch_size=patch_size)
         myDatas.proceed(data_path)
         
         # Define the model
@@ -135,9 +136,9 @@ def run(data_path, csv_path, mask_path, model_path):
         # Load the model
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         cnn = torch.load(model_path, map_location=device)
+        standardize = is_standardized[model_filename]
 
     # Load the test images
-    standardize = is_standardized[os.path.basename(model_path)]
     myTestDatas = TestData(standardize=standardize, aug_patch_size=patch_size)
     myTestDatas.proceed(test_path=os.path.join(data_path, 'test_set_images'))
 
