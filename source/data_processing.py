@@ -150,10 +150,10 @@ class AdvancedProcessing:
         self.X_validation = np.array([])
         self.y_validation = np.array([])
 
-    def load_data(self):
+    def load_data(self, train_path=constants.TRAIN_DIR):
         """Load the data."""
         print("Loading data...")
-        self.imgs, self.gt_imgs = load_datas(self.nb_images)
+        self.imgs, self.gt_imgs = load_datas(self.nb_images, train_path)
         print("Done!")
     
     def standardize_color(self):
@@ -207,9 +207,9 @@ class AdvancedProcessing:
                                 num_workers=self.num_workers)
         print("Done!")
 
-    def proceed(self):
+    def proceed(self, train_path=constants.TRAIN_DIR):
         """Proceed to the advanced processing."""
-        self.load_data()
+        self.load_data(train_path)
         if self.standardize:
             self.standardize_color()
         self.split_sets()

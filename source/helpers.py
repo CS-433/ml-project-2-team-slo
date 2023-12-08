@@ -10,6 +10,10 @@
 import numpy as np
 import matplotlib.image as mpimg
 import constants
+import re
+import os
+from PIL import Image
+from visualization import label_to_img
 
 # Helper functions
 def load_image(infilename):
@@ -24,7 +28,7 @@ def load_image(infilename):
 
 def value_to_class(patch):
     patch_mean = np.mean(patch)
-    if patch_mean > foreground_threshold:
+    if patch_mean > constants.FOREGROUND_THRESHOLD:
         return 1
     else:
         return 0
@@ -87,16 +91,17 @@ def img_crop(im, w, h):
             list_patches.append(im_patch)
     return list_patches
 
-def value_to_class(v):
-    df = np.mean(v)
-    if df > constants.FOREGROUND_THRESHOLD:
-        return 1
-    else:
-        return 0
-
-
 def f1_score(preds, targets):
-    """Compute the F1 score."""
+    """
+    Compute the F1 score.
+    
+    Args:
+        preds (np.ndarray): The predictions
+        targets (np.ndarray): The targets
+    
+    Returns:
+        float: The F1 score
+    """
     assert len(preds) == len(targets)
     
     tp = np.sum(preds * targets)
@@ -108,25 +113,49 @@ def f1_score(preds, targets):
         return np.nan
     return 2 * (precision * recall) / (precision + recall)
 
+def save_pred_as_png(sub_preds, nb_imgs, patch_size=constants.PATCH_SIZE, folder_path='../data/submission/'):
+    """
+    Save the predictions as PNG
 
-#Create Submission with given Functions
+    Args:
+        sub_preds (np.ndarray): The predictions
+        nb_imgs (int): The number of images
+        patch_size (int): The size of the patch
+        folder_path (str): The path to the folder where to save the images
+    
+    Returns:
+        list: The list of the images filenames
+    """
+    images_filenames = []
 
-#!/usr/bin/env python3
-
-import os
-import numpy as np
-import matplotlib.image as mpimg
-import re
-
-foreground_threshold = 0.25 # percentage of pixels > 1 required to assign a foreground label to a patch
-
-# assign a label to a patch
-def patch_to_label(patch):
-    df = np.mean(patch)
-    if df > foreground_threshold:
-        return 1
+    nb_patches_per_img = len(sub_preds) // nb_imgs
+    
+    if not os.path.exists(folder_path):
+        # Create the folder if it does not exist
+        os.makedirs(folder_path)
+        print(f"Folder '{folder_path}' created successfully.")
     else:
-        return 0
+        # Do nothing if the folder already exists
+        print(f"Folder '{folder_path}' already exists.")
+
+    for i in range(nb_imgs):
+        # Assuming label_to_img returns a binary image (0s and 1s)
+
+        predicted_im = label_to_img(608, 608, patch_size, patch_size, 
+                                    sub_preds[i * nb_patches_per_img: (i + 1) * nb_patches_per_img])
+
+        # Convert the numpy array to PIL Image
+        predicted_img_pil = Image.fromarray((predicted_im * 255).astype(np.uint8))
+
+        # Convert the image to RGB mode
+        predicted_img_pil = predicted_img_pil.convert("RGB")
+
+        # Save the image as PNG
+        filename = f'{folder_path}preds_{i+1}.png'
+        images_filenames.append(filename)
+        predicted_img_pil.save(filename)
+
+    return images_filenames
 
 
 def mask_to_submission_strings(image_filename):
@@ -137,7 +166,7 @@ def mask_to_submission_strings(image_filename):
     for j in range(0, im.shape[1], patch_size):
         for i in range(0, im.shape[0], patch_size):
             patch = im[i:i + patch_size, j:j + patch_size]
-            label = patch_to_label(patch)
+            label = value_to_class(patch)
             yield("{:03d}_{}_{},{}".format(img_number, j, i, label))
 
 

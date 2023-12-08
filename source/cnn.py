@@ -165,7 +165,8 @@ class Advanced_CNN(CNN):
 class Basic_CNN(CNN):
     def __init__(
             self,
-            patch_size=constants.AUG_PATCH_SIZE):
+            patch_size=constants.AUG_PATCH_SIZE,
+            threshold = constants.FOREGROUND_THRESHOLD):
         """
         Constructor.
         
@@ -177,6 +178,7 @@ class Basic_CNN(CNN):
         - ReLU activation
         - Fully connected layer with 1 output
         """
+        self.threshold = threshold
         super(Basic_CNN, self).__init__()
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

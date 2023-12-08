@@ -37,10 +37,10 @@ class TestData:
         self.patch_size = patch_size
         self.aug_patch_size = aug_patch_size
 
-    def load_data(self):
+    def load_data(self, test_path=constants.TEST_DIR):
         """Load the data."""
         print("Loading data...")
-        self.imgs = load_test_datas()
+        self.imgs = load_test_datas(test_path)
         print("Done!")
     
     def create_dataloader(self):
@@ -67,7 +67,13 @@ class TestData:
         self.patches = create_test_set(self.imgs, self.aug_patch_size)
         print("Done!")
 
-    def create_submission(self,pred):
+    def create_submission(self, pred):
+        """
+        Create the submission file.
+        
+        Args:
+            pred (np.ndarray): The predictions.
+        """
         images_filenames = save_pred_as_png(
             pred, 
             len(self.imgs), 
@@ -78,9 +84,9 @@ class TestData:
         masks_to_submission('submission.csv', *images_filenames)
         print("Submission created!")
     
-    def proceed(self):
+    def proceed(self, test_path=constants.TEST_DIR):
         """Process all the steps."""
-        self.load_data()
+        self.load_data(test_path)
         if self.standardize:
             self.standardize_color()
         self.format_data()
