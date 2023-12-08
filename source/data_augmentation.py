@@ -60,7 +60,7 @@ def create_samples(imgs, gt_imgs, aug_patch_size,num_samples, batch_size,blur=Fa
 
         while len(list_patches) < batch_size:
             if count == 10 * batch_size:
-                img, gt = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs,blured_imgs)
+                img, gt = choose_image(rotated_imgs,rotated_gt_imgs,aug_imgs,gt_imgs,blured_imgs,blur)
                 count = 0
 
             img_patch, label = create_single_sample(img,gt,half_patch,size_padding)
