@@ -188,4 +188,4 @@ if __name__ == "__main__":
     elapsed_time = et - st
     minutes, seconds = divmod(elapsed_time, 60)
 
-    print(f"Process finished in {minutes} min {int(seconds)} sec")
+    print(f"Process finished in {int(minutes)} min {int(seconds)} sec")
