@@ -98,7 +98,6 @@ Two models are proposed for this project, a basic and an advanced convolution ne
 | Advanced (+ color standardization) | 128        | Adam         | 0.3       | 0.922    | 0.853    | 0.867            | 0.929            |
 | Advanced (+ color standardization) | 128        | Adam         | 0.2       | 0.922    | 0.853    | 0.870            | 0.930            |
 | Advanced (+ color standardization + Blur) | 128        | Adam        |0.2        | 0.923    | 0.856      |
-
 | Advanced (+ color standardization + Blur) | 128        | Adam        |0.25        | 0.919    | 0.847      |
 
 ## Run the solution
