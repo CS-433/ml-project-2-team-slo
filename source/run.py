@@ -173,7 +173,7 @@ if __name__ == "__main__":
         "--output_csv_path", type=str, help="submission file path", required=False
     )
     parser.add_argument(
-        "--output_mask_path", type=str, help="submission file path", required=False
+        "--output_mask_path", type=str, help="output masks image path", required=False
     )
     parser.add_argument(
         "--model_path", type=str, help="path to the model", required=False
