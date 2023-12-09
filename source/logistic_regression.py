@@ -49,6 +49,7 @@ class LogisticRegression:
     def train(self):
         self.logreg = linear_model.LogisticRegression(C=1e5, class_weight="balanced")
         self.logreg.fit(self.X, self.Y)
+        
     def predict(self):
         self.prediction = self.logreg.predict(self.X)
         self.accuracy = self.logreg.score(self.X, self.Y)

@@ -102,18 +102,21 @@ class Advanced_CNN(CNN):
         - ReLU activation
         - Max pooling layer with kernel size 2, stride 2
         - Convolutional layer with 32 filters, kernel size 3, stride 1, padding 1
+        - Dropout layer with probability 0.1
         - ReLU activation
         - Max pooling layer with kernel size 2, stride 2
         - Convolutional layer with 64 filters, kernel size 3, stride 1, padding 1
         - ReLU activation
         - Max pooling layer with kernel size 2, stride 2
         - Convolutional layer with 64 filters, kernel size 3, stride 1, padding 1
+        - Dropout layer with probability 0.1
         - ReLU activation
         - Max pooling layer with kernel size 2, stride 2
         - Convolutional layer with 128 filters, kernel size 3, stride 1, padding 1
         - ReLU activation
         - Max pooling layer with kernel size 2, stride 2
         - Convolutional layer with 128 filters, kernel size 3, stride 1, padding 1
+        - Dropout layer with probability 0.1
         - ReLU activation
         - Fully connected layer with 1 output
         """
@@ -165,7 +168,7 @@ class Advanced_CNN(CNN):
 class Basic_CNN(CNN):
     def __init__(
             self,
-            patch_size=constants.AUG_PATCH_SIZE,
+            patch_size = constants.AUG_PATCH_SIZE,
             threshold = constants.FOREGROUND_THRESHOLD):
         """
         Constructor.

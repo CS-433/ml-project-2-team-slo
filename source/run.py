@@ -3,7 +3,7 @@
 # -*- date : 2023-10-29 -*-
 # -*- Last revision: 2023-12-08 -*-
 # -*- python version : 3.11.5 -*-
-# -*- Description: Run the best solution-*-
+# -*- Description: Run the best solution -*-
 
 import time
 import argparse
@@ -25,11 +25,14 @@ is_standardized = {
     'basic_cnn_64.pth': False,
     'advanced_cnn_64.pth': False,
     'advanced_cnn_128.pth': False,
-    'advanced_cnn_128.pth': True,
+    'advanced_cnn_color_128.pth': True,
     'advanced_cnn_128_adamw.pth': True,
     'advanced_cnn_128_nesterov.pth': True,
     'advanced_cnn_128_thr_02.pth': True,
     'advanced_cnn_128_thr_03.pth': True,
+    'advanced_cnn_128_blur_025.pth': True,
+    'advanced_cnn_128_blur.pth': True
+
 }
 
 def handle_path(data_path, csv_path, mask_path, model_path):
@@ -83,6 +86,13 @@ def handle_path(data_path, csv_path, mask_path, model_path):
     if not os.path.exists(model_path):
         # If the path does not exist, raise an error
         raise FileNotFoundError(f"Path {model_path} does not exist.")
+    else:
+        if not os.path.isfile(model_path):
+            # If the path is not a file, raise an error
+            raise FileNotFoundError(f"Path {model_path} is not a file.")
+        elif not os.path.basename(model_path).endswith('.pth'):
+            # If the file is not a .pth file, raise an error
+            raise FileNotFoundError(f"File {model_path} is not a .pth file.")
     
     return data_path, csv_path, mask_path, model_path
 
