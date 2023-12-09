@@ -116,11 +116,11 @@ def run(data_path, csv_path, mask_path, model_path):
         # Load the train images
         patch_size = 128
         standardize = True
-        myDatas = AdvancedProcessing(standardize=standardize, aug_patch_size=patch_size)
+        myDatas = AdvancedProcessing(standardize=standardize, aug_patch_size=patch_size, blur=True)
         myDatas.proceed(data_path)
         
         # Define the model
-        cnn = Advanced_CNN(patch_size,threshold=0.2)
+        cnn = Advanced_CNN(patch_size, threshold=0.2)
 
         # Define the criterion
         criterion = nn.BCEWithLogitsLoss()
