@@ -73,7 +73,7 @@ The folder `source` provides all the codes used to develop the models. All the t
 ## Data wrangling
 The training datas consist of a set of 100 RGB images of size 400x400 pixels, comming with the correspond label images. The first step is to convert the images to arrays that can be used later on. The predictions are done on patches of size 16x16 pixels. Therefore groundtruth images have to be croped to paches of this size.
 
-The test images consist of 50 RGB images of size 608x608 pixels. These images are also croped into patches of size 16x16 in order to make predictions in the plateform [AICrowd]([https://link-url-here.org](https://www.aicrowd.com/challenges/epfl-ml-road-segmentation))
+The test images consist of 50 RGB images of size 608x608 pixels. These images are also croped into patches of size 16x16 in order to make predictions in the plateform [AICrowd](https://www.aicrowd.com/challenges/epfl-ml-road-segmentation)
 
 ## Data processing
 
