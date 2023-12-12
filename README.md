@@ -76,11 +76,25 @@ The training datas consist of a set of 100 RGB images of size 400x400 pixels, co
 The test images consist of 50 RGB images of size 608x608 pixels. These images are also croped into patches of size 16x16 in order to make predictions in the plateform [AICrowd](https://www.aicrowd.com/challenges/epfl-ml-road-segmentation)
 
 ## Data processing
+To classes are done to perform data processing: `BasicProcessing``
+* load datas
+* create patches : crop the images into patches of size 16x16
+* create labels : create the labels of the patches
+* create sets: create a validation from the original set to evaluate the model
 
-To solve the problems mentionned in the abstract, the following solutions are proposed:</p>
-* The color is normalized in order to obtain homogeneous RGB images for the training set.
-* The datas are balanced to obtain an even distribution of road/background.
-* The size of the patch feeded to the neural network can be changed to obtain better performance.
+This model doesn't address the problems mentionned in the abstract. The purpose of this class was only a first step to understand the datas and be able to produce results. 
+
+The second class, `AdvancedProcessing`, proposes solutions to problems cite in introduction. It performs the following transformations:
+* load datas
+* standardize color
+* split sets: split images into training and validate sets
+* create patches: create samples of size = augmented patch size (**for the training only**) with the following transformations:
+    * rotations
+    * bluring
+    * random center
+    * Balanced number of road and background
+
+It's good noticing that only samples for the training are balanced. Patches of the validation set is create in the "standard" fashion. Therefore, the obtained F1-score for the validation is done on unbalanced datas.
 
 ## Models
 Two models are proposed for this project, a basic and an advanced convolution neural network.
