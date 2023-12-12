@@ -15,6 +15,7 @@ CS-433 Machine Learning
 
 - [Abstract](#abstract)
 - [Project Structure](#project-structure)
+- [Dataset Structure](#dataset-structure)
 - [Data Wrangling](#data-wrangling)
 - [Models](#models)
 - [Results](#results)
@@ -69,6 +70,28 @@ These problems will be discussed in the following sections.
     └── tf_aerial_images.py
 ```
 The folder `source` provides all the codes used to develop the models. All the tested models are grouped in the folder `models` and can be reused without training (see the section **Run the solution** for more help. Folder `template` provides the given codes to start the projects. Some of the functions introduced in this code has been use in the code.
+
+## Dataset Structure
+
+```
+.
+├── test_set_images
+│   ├── test_1
+│   │   └── test_1.png
+│   ├── ...
+│   │   └── ...
+│   ├── test_50
+│   │   └── test_50.png
+└── training
+    ├── groundtruth
+    │   ├── satImage_001.png
+    │   ├── ...
+    │   └── satImage_100.png
+    └── images
+        ├── satImage_001.png
+        ├── ...
+        └── satImage_100.png
+```
 
 ## Data wrangling
 The training datas consist of a set of 100 RGB images of size 400x400 pixels, comming with the correspond label images. The first step is to convert the images to arrays that can be used later on. The predictions are done on patches of size 16x16 pixels. Therefore groundtruth images have to be croped to paches of this size.
@@ -148,27 +171,11 @@ Two models are proposed for this project, a basic and an advanced convolution ne
 | Advanced (+ color standardization + Blur)  | 128        | Adam        |0.25        | 0.919    | 0.847    | 0.861            | 0.926            |
 
 ## Run the solution
-```
-.
-├── test_set_images
-│   ├── test_1
-│   │   └── test_1.png
-│   ├── ...
-│   │   └── ...
-│   ├── test_50
-│   │   └── test_50.png
-└── training
-    ├── groundtruth
-    │   ├── satImage_001.png
-    │   ├── ...
-    │   └── satImage_100.png
-    └── images
-        ├── satImage_001.png
-        ├── ...
-        └── satImage_100.png
-```
+
 
 The file run.py enables to directly load one of the different trained model present in the folder '/models' and make the predictions of the test set or to train the best model from the beginning. The following arguments can be passed:
 
--`--data_path`: path to the dataset according the structure the 
--`--output_csv_path`: path to the directory where the the submission.csv is written
+- `--data_path`: path to the dataset folder which should follow structure described in section [Dataset Structure](#dataset-structure).
+- `--output_csv_path`: path to the directory where the submission.csv will be written.
+- `--output_mask_path`: path to the directory where the predicted mask images are saved.
+- `--model_path`: path to the model file to load (it will train and predict the best model if not specified).
