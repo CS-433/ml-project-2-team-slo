@@ -122,7 +122,7 @@ def run(data_path, csv_path, mask_path, model_path):
         patch_size = 128
         standardize = True
         myDatas = AdvancedProcessing(standardize=standardize, aug_patch_size=patch_size, blur=True)
-        myDatas.proceed()
+        myDatas.proceed(train_path=os.path.join(data_path, 'training'))
         
         # Define the model
         cnn = Advanced_CNN(patch_size, threshold=0.2)
