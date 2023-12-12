@@ -60,12 +60,12 @@ def handle_path(data_path, csv_path, mask_path, model_path):
         # If the path does not exist, raise an error
         raise FileNotFoundError(f"Path {data_path} does not exist.")
     else:
-        if model_path is None:
+        if model_path is not None:
             if 'test_set_images' not in os.listdir(data_path):
                 # If the path does not contain the test folder, raise an error
                 raise FileNotFoundError(f"Path {data_path} does not contain the test folder.")
         else: 
-            if ['test_set_images', 'training'] not in os.listdir(data_path):
+            if 'test_set_images' not in os.listdir(data_path) and 'training' not in os.listdir(data_path):
                 # If the path does not contain the test and training folders, raise an error
                 raise FileNotFoundError(f"Path {data_path} does not contain the test and training folders.")
 
@@ -75,6 +75,10 @@ def handle_path(data_path, csv_path, mask_path, model_path):
     elif not os.path.exists(csv_path):
         # If the path does not exist, raise an error
         raise FileNotFoundError(f"Path {csv_path} does not exist.")
+    else:
+        # If the path is a directory, add the default filename
+        if os.path.isdir(csv_path):
+            csv_path = os.path.join(csv_path, 'submission.csv')
     
     if mask_path is None:
         # If no path is provided, use the default one

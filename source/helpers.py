@@ -151,7 +151,7 @@ def save_pred_as_png(sub_preds, nb_imgs, patch_size=constants.PATCH_SIZE, folder
         predicted_img_pil = predicted_img_pil.convert("RGB")
 
         # Save the image as PNG
-        filename = f'{folder_path}preds_{i+1}.png'
+        filename = os.path.join(folder_path, f"preds_{i+1}.png")
         images_filenames.append(filename)
         predicted_img_pil.save(filename)
 
