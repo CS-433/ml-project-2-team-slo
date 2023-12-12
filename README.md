@@ -97,7 +97,39 @@ The second class, `AdvancedProcessing`, proposes solutions to problems cite in i
 It's good noticing that only samples for the training are balanced. Patches of the validation set is create in the "standard" fashion. Therefore, the obtained F1-score for the validation is done on unbalanced datas.
 
 ## Models
-Two models are proposed for this project, a basic and an advanced convolution neural network.
+Two models are proposed for this project, a basic and an advanced convolution neural network. The structure of the models is defined as follow:
+
+**Basic CNN**
+- Convolutional layer with 32 filters, kernel size 3, stride 1, padding 1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 32 filters, kernel size 3, stride 1, padding 1
+- ReLU activation
+- Fully connected layer with 1 output
+
+**Advanced CNN**
+- Convolutional layer with 32 filters, kernel size 3, stride 1, padding 1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 32 filters, kernel size 3, stride 1, padding 1
+- Dropout layer with probability 0.1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 64 filters, kernel size 3, stride 1, padding 1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 64 filters, kernel size 3, stride 1, padding 1
+- Dropout layer with probability 0.1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 128 filters, kernel size 3, stride 1, padding 1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 128 filters, kernel size 3, stride 1, padding 1
+- Dropout layer with probability 0.1
+- ReLU activation
+- Fully connected layer with 1 output
+- 
 ## Results
 
 | Model                                      | Patch size | Optimizer    | Threshold | Accuracy | F1-score | AICrowd F1-Score | AICrowd accuracy |
@@ -117,3 +149,7 @@ Two models are proposed for this project, a basic and an advanced convolution ne
 
 ## Run the solution
 
+The file run.py enables to directly load one of the different trained model present in the folder '/models' and make the predictions of the test set or to train the best model from the beginning. The following arguments can be passed:
+
+-`--data_path`: path to the dataset according the structure the 
+-`--output_csv_path`: path to the directory where the the submission.csv is written
