@@ -22,9 +22,10 @@ CS-433 Machine Learning
 
 ## Abstract 
 The purpose of this project is to create a binary classifier that is able to recognize roads from Google maps satellite images. This kind of task is very common in image classification and computer vision. This repository presents solutions addressed to solve this problem. The major issues that have to be handled are the following:
-*The datas are not well balanced : only 25% of the datas are roads
-*Roads are majoritary vertical or horizontal
-*The color of the roads is very similar to the one of sidewalk or parking area
+* The datas are not well balanced : only 25% of the datas are roads.
+* Roads are majoritary vertical or horizontal.
+* The color of the roads is very similar to the one of sidewalk or parking area.
+
 These problems will be discussed in the following sections.
 
 ## Project structure
@@ -67,12 +68,12 @@ These problems will be discussed in the following sections.
     ├── submission_to_mask.py
     └── tf_aerial_images.py
 ```
-
-
-The best solution can be run using the `run.py` file, in the source folder. The main results and the steps that leads to this solutions can be found in the main juypter notebook.
+The folder `source` provides all the codes used to develop the models. All the tested models are grouped in the folder `models` and can be reused without training (see the section **Run the solution** for more help. Folder `template` provides the given codes to start the projects. Some of the functions introduced in this code has been use in the code.
 
 ## Data wrangling
-The datas consist of a set of 100 RGB images of size 400x400 pixels, comming with the correspond label images. The first step is to convert the images to arrays that can be used later on. The predictions are done on patches of size 16x16 pixels. The groundtruth images have to be croped to paches of this size. The corresponding images have to be croped the same way. 
+The training datas consist of a set of 100 RGB images of size 400x400 pixels, comming with the correspond label images. The first step is to convert the images to arrays that can be used later on. The predictions are done on patches of size 16x16 pixels. Therefore groundtruth images have to be croped to paches of this size.
+
+The test images consist of 50 RGB images of size 608x608 pixels. These images are also croped into patches of size 16x16 in order to make predictions in the plateform [AICrowd]([https://link-url-here.org](https://www.aicrowd.com/challenges/epfl-ml-road-segmentation))
 
 ## Data processing
 
@@ -85,20 +86,20 @@ To solve the problems mentionned in the abstract, the following solutions are pr
 Two models are proposed for this project, a basic and an advanced convolution neural network.
 ## Results
 
-| Model                              | Patch size | Optimizer    | Threshold | Accuracy | F1-score | AICrowd F1-Score | AICrowd accuracy |
-|------------------------------------|------------|--------------|-----------|----------|----------|------------------|------------------|
-| Basic                              | 16         | Adam         | 0.25      | 0.800    | 0.679    | -                | -                |
-| Basic                              | 32         | Adam         | 0.25      | 0.832    | 0.720    | -                | -                |
-| Basic                              | 64         | Adam         | 0.25      | 0.850    | 0.743    | 0.783            | 0.876            |
-| Advanced                           | 64         | Adam         | 0.25      | 0.889    | 0.792    | -                | -                |
-| Advanced                           | 128        | Adam         | 0.25      | 0.912    | 0.833    | 0.857            | 0.923            |    
-| Advanced (+ color standardization) | 128        | Adam         | 0.25      | 0.924    | 0.857    | 0.860            | 0.926            |
-| Advanced (+ color standardization) | 128        | AdamW        | 0.25      | 0.921    | 0.851    | -                | -                |
-| Advanced (+ color standardization) | 128        | SGD Nesterov | 0.25      | 0.907    | 0.826    | -                | -                |
-| Advanced (+ color standardization) | 128        | Adam         | 0.3       | 0.922    | 0.853    | -                | -                |
-| Advanced (+ color standardization) | 128        | Adam         | 0.2       | 0.922    | 0.853    | 0.866            | 0.928            |
-| Advanced (+ color standardization + Blur) | 128        | Adam        |0.2        | 0.923    | 0.856      | 0.870 	|  	0.930 |
-| Advanced (+ color standardization + Blur) | 128        | Adam        |0.25        | 0.919    | 0.847      |
+| Model                                      | Patch size | Optimizer    | Threshold | Accuracy | F1-score | AICrowd F1-Score | AICrowd accuracy |
+|--------------------------------------------|------------|--------------|-----------|----------|----------|------------------|------------------|
+| Basic                                      | 16         | Adam         | 0.25      | 0.800    | 0.679    | -                | -                |
+| Basic                                      | 32         | Adam         | 0.25      | 0.832    | 0.720    | -                | -                |
+| Basic                                      | 64         | Adam         | 0.25      | 0.850    | 0.743    | 0.783            | 0.876            |
+| Advanced                                   | 64         | Adam         | 0.25      | 0.889    | 0.792    | -                | -                |
+| Advanced                                   | 128        | Adam         | 0.25      | 0.912    | 0.833    | 0.857            | 0.923            |    
+| Advanced (+ color standardization)         | 128        | Adam         | 0.25      | 0.924    | 0.857    | 0.860            | 0.926            |
+| Advanced (+ color standardization)         | 128        | AdamW        | 0.25      | 0.921    | 0.851    | -                | -                |
+| Advanced (+ color standardization)         | 128        | SGD Nesterov | 0.25      | 0.907    | 0.826    | -                | -                |
+| Advanced (+ color standardization)         | 128        | Adam         | 0.3       | 0.922    | 0.853    | -                | -                |
+| Advanced (+ color standardization)         | 128        | Adam         | 0.2       | 0.922    | 0.853    | 0.866            | 0.928            |
+| Advanced (+ color standardization + Blur)  | 128        | Adam        |0.2         | 0.923    | 0.856    | 0.870 	          | 0.930            |
+| Advanced (+ color standardization + Blur)  | 128        | Adam        |0.25        | 0.919    | 0.847    | 0.861            | 0.926            |
 
 ## Run the solution
 
