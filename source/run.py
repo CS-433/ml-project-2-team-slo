@@ -160,7 +160,7 @@ def run(data_path, csv_path, mask_path, model_path):
     print("Predicting...")
     preds = cnn.predict(myTestDatas.test_dataloader)
     print("Done!")
-
+    
     # Save the predictions as PNG
     images_filenames = save_pred_as_png(preds, len(myTestDatas.imgs), folder_path=mask_path)
     # Create the submission file

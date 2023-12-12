@@ -160,7 +160,7 @@ def save_pred_as_png(sub_preds, nb_imgs, patch_size=constants.PATCH_SIZE, folder
 
 def mask_to_submission_strings(image_filename):
     """Reads a single image and outputs the strings that should go into the submission file"""
-    img_number = int(re.search(r"\d+", image_filename).group(0))
+    img_number = int(re.search(r"\d+", os.path.basename(image_filename)).group(0))
     im = mpimg.imread(image_filename)
     patch_size = 16
     for j in range(0, im.shape[1], patch_size):
