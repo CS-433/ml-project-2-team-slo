@@ -89,9 +89,9 @@ The second class, `AdvancedProcessing`, proposes solutions to problems cite in i
 * standardize color
 * split sets: split images into training and validate sets
 * create patches: create samples of size = augmented patch size (**for the training only**) with the following transformations:
-    * rotations
-    * bluring
-    * random center
+    * Rotations
+    * Bluring
+    * Random center
     * Balanced number of road and background
 
 It's good noticing that only samples for the training are balanced. Patches of the validation set is create in the "standard" fashion. Therefore, the obtained F1-score for the validation is done on unbalanced datas.
