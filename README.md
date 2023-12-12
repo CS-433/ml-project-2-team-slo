@@ -69,7 +69,7 @@ These problems will be discussed in the following sections.
     ├── submission_to_mask.py
     └── tf_aerial_images.py
 ```
-The folder `source` provides all the codes used to develop the models. All the tested models are grouped in the folder `models` and can be reused without training (see the section **Run the solution** for more help. Folder `template` provides the given codes to start the projects. Some of the functions introduced in this code has been use in the code.
+The folder */source* provides all the codes used to develop the models. All the tested models are grouped in the folder */models* and can be reused without training (see the section **Run the solution** for more help. Folder */template* provides the given codes to start the projects. Some of the functions introduced in this code has been use in the code.
 
 ## Dataset Structure
 
@@ -107,7 +107,7 @@ To classes are done to perform data processing: `BasicProcessing``
 
 This model doesn't address the problems mentionned in the abstract. The purpose of this class was only a first step to understand the datas and be able to produce results. 
 
-The second class, `AdvancedProcessing`, proposes solutions to problems cite in introduction. It performs the following transformations:
+The second class, **AdvancedProcessing**, proposes solutions to problems cite in introduction. It performs the following transformations:
 * load datas
 * standardize color
 * split sets: split images into training and validate sets
@@ -173,7 +173,7 @@ Two models are proposed for this project, a basic and an advanced convolution ne
 ## Run the solution
 
 
-The file run.py enables to directly load one of the different trained model present in the folder '/models' and make the predictions of the test set or to train the best model from the beginning. The following arguments can be passed:
+The file run.py enables to directly load one of the different trained model present in the folder */models* and make the predictions of the test set or to train the best model from the beginning. The following arguments can be passed:
 
 - `--data_path`: path to the dataset folder which should follow structure described in section [Dataset Structure](#dataset-structure).
 - `--output_csv_path`: path to the directory where the submission.csv will be written.
