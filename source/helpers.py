@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# -*- author : Vincent Roduit -*-
+# -*- author : Vincent Roduit, Yannis Laaroussi -*-
 # -*- Credits: Machine Learning course of the EPFL, Switzerland-*-
 # -*- date : 2023-11-25 -*-
 # -*- Last revision: 2023-11-35 -*-
@@ -113,7 +113,7 @@ def f1_score(preds, targets):
         return np.nan
     return 2 * (precision * recall) / (precision + recall)
 
-def save_pred_as_png(sub_preds, nb_imgs, patch_size=constants.PATCH_SIZE, folder_path='../data/submission/'):
+def save_pred_as_png(sub_preds, nb_imgs, patch_size=constants.PATCH_SIZE, folder_path=constants.RESULTS_FOLDER_PATH):
     """
     Save the predictions as PNG
 
@@ -151,7 +151,7 @@ def save_pred_as_png(sub_preds, nb_imgs, patch_size=constants.PATCH_SIZE, folder
         predicted_img_pil = predicted_img_pil.convert("RGB")
 
         # Save the image as PNG
-        filename = f'{folder_path}preds_{i+1}.png'
+        filename = os.path.join(folder_path, f"preds_{i+1}.png")
         images_filenames.append(filename)
         predicted_img_pil.save(filename)
 

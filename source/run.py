@@ -3,7 +3,7 @@
 # -*- date : 2023-10-29 -*-
 # -*- Last revision: 2023-12-08 -*-
 # -*- python version : 3.11.5 -*-
-# -*- Description: Run the best solution-*-
+# -*- Description: Run the best solution -*-
 
 import time
 import argparse
@@ -25,11 +25,14 @@ is_standardized = {
     'basic_cnn_64.pth': False,
     'advanced_cnn_64.pth': False,
     'advanced_cnn_128.pth': False,
-    'advanced_cnn_128.pth': True,
+    'advanced_cnn_color_128.pth': True,
     'advanced_cnn_128_adamw.pth': True,
     'advanced_cnn_128_nesterov.pth': True,
     'advanced_cnn_128_thr_02.pth': True,
     'advanced_cnn_128_thr_03.pth': True,
+    'advanced_cnn_128_blur_025.pth': True,
+    'advanced_cnn_128_blur.pth': True
+
 }
 
 def handle_path(data_path, csv_path, mask_path, model_path):
@@ -57,12 +60,12 @@ def handle_path(data_path, csv_path, mask_path, model_path):
         # If the path does not exist, raise an error
         raise FileNotFoundError(f"Path {data_path} does not exist.")
     else:
-        if model_path is None:
+        if model_path is not None:
             if 'test_set_images' not in os.listdir(data_path):
                 # If the path does not contain the test folder, raise an error
                 raise FileNotFoundError(f"Path {data_path} does not contain the test folder.")
         else: 
-            if ['test_set_images', 'training'] not in os.listdir(data_path):
+            if 'test_set_images' not in os.listdir(data_path) and 'training' not in os.listdir(data_path):
                 # If the path does not contain the test and training folders, raise an error
                 raise FileNotFoundError(f"Path {data_path} does not contain the test and training folders.")
 
@@ -72,6 +75,10 @@ def handle_path(data_path, csv_path, mask_path, model_path):
     elif not os.path.exists(csv_path):
         # If the path does not exist, raise an error
         raise FileNotFoundError(f"Path {csv_path} does not exist.")
+    else:
+        # If the path is a directory, add the default filename
+        if os.path.isdir(csv_path):
+            csv_path = os.path.join(csv_path, 'submission.csv')
     
     if mask_path is None:
         # If no path is provided, use the default one
@@ -83,6 +90,13 @@ def handle_path(data_path, csv_path, mask_path, model_path):
     if not os.path.exists(model_path):
         # If the path does not exist, raise an error
         raise FileNotFoundError(f"Path {model_path} does not exist.")
+    else:
+        if not os.path.isfile(model_path):
+            # If the path is not a file, raise an error
+            raise FileNotFoundError(f"Path {model_path} is not a file.")
+        elif not os.path.basename(model_path).endswith('.pth'):
+            # If the file is not a .pth file, raise an error
+            raise FileNotFoundError(f"File {model_path} is not a .pth file.")
     
     return data_path, csv_path, mask_path, model_path
 
@@ -106,11 +120,11 @@ def run(data_path, csv_path, mask_path, model_path):
         # Load the train images
         patch_size = 128
         standardize = True
-        myDatas = AdvancedProcessing(standardize=standardize, aug_patch_size=patch_size)
+        myDatas = AdvancedProcessing(standardize=standardize, aug_patch_size=patch_size, blur=True)
         myDatas.proceed(data_path)
         
         # Define the model
-        cnn = Advanced_CNN(patch_size,threshold=0.2)
+        cnn = Advanced_CNN(patch_size, threshold=0.2)
 
         # Define the criterion
         criterion = nn.BCEWithLogitsLoss()
@@ -163,7 +177,7 @@ if __name__ == "__main__":
         "--output_csv_path", type=str, help="submission file path", required=False
     )
     parser.add_argument(
-        "--output_mask_path", type=str, help="submission file path", required=False
+        "--output_mask_path", type=str, help="output masks image path", required=False
     )
     parser.add_argument(
         "--model_path", type=str, help="path to the model", required=False

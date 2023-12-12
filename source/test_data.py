@@ -12,8 +12,7 @@ from torch.utils.data import DataLoader
 #import files
 import constants
 from load_datas import load_test_datas
-from helpers import masks_to_submission
-from post_processing import save_pred_as_png
+from helpers import masks_to_submission, save_pred_as_png
 from visualization import label_to_img
 from data_augmentation import create_test_set
 
@@ -78,7 +77,6 @@ class TestData:
             pred, 
             len(self.imgs), 
             self.patch_size, 
-            label_to_img,
             folder_path=constants.RESULTS_FOLDER_PATH)
         
         masks_to_submission('submission.csv', *images_filenames)
