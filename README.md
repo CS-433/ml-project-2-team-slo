@@ -148,6 +148,25 @@ Two models are proposed for this project, a basic and an advanced convolution ne
 | Advanced (+ color standardization + Blur)  | 128        | Adam        |0.25        | 0.919    | 0.847    | 0.861            | 0.926            |
 
 ## Run the solution
+```
+.
+├── test_set_images
+│   ├── test_1
+│   │   └── test_1.png
+│   ├── ...
+│   │   └── ...
+│   ├── test_50
+│   │   └── test_50.png
+└── training
+    ├── groundtruth
+    │   ├── satImage_001.png
+    │   ├── ...
+    │   └── satImage_100.png
+    └── images
+        ├── satImage_001.png
+        ├── ...
+        └── satImage_100.png
+```
 
 The file run.py enables to directly load one of the different trained model present in the folder '/models' and make the predictions of the test set or to train the best model from the beginning. The following arguments can be passed:
 
