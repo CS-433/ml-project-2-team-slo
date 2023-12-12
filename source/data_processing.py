@@ -20,20 +20,20 @@ from data_augmentation import create_samples, create_test_set
 class BasicProcessing:
     """Class to process all datas. All the attributes are numpy arrays."""
 
-    def __init__(self):
+    def __init__(self, batchsize=constants.BATCH_SIZE):
         """Constructor.
         Args:
             imgs (np.ndarray): Images.
             gt_imgs (np.ndarray): Groundtruth images.
         """
+        self.batchsize = batchsize
+        self.num_workers = constants.NUM_WORKERS
         self.imgs = np.array([])
         self.gt_imgs = np.array([])
         self.imgs_patches = np.array([])
         self.gt_imgs_patches = np.array([])
         self.imgs_train = np.array([])
         self.gt_imgs_train = np.array([])
-        self.imgs_test = np.array([])
-        self.gt_imgs_test = np.array([])
         self.imgs_validation = np.array([])
         self.gt_imgs_validation = np.array([])
 
@@ -87,11 +87,8 @@ class BasicProcessing:
             TEST_SIZE (float): Size of the test set.
         """
         print("Splitting data...")
-        tmp_x, self.imgs_test, tmp_y, self.gt_imgs_test  = train_test_split(
+        self.imgs_train, self.imgs_validation, self.gt_imgs_train, self.gt_imgs_validation  = train_test_split(
             self.imgs_patches, self.gt_imgs_patches, test_size=test_size, random_state=42
-        )
-        self.imgs_train, self.imgs_validation, self.gt_imgs_train, self.gt_imgs_validation = train_test_split(
-            tmp_x, tmp_y, test_size=validation_size, random_state=42
         )
         print("Done!")
     def permute_axis(self):
@@ -104,6 +101,21 @@ class BasicProcessing:
         print("Loading data...")
         self.imgs, self.gt_imgs = load_datas(nb_img=constants.NB_IMAGES)
         print("Done!")
+    def create_dataloader(self):
+        """Create dataloader from the patches."""
+        print("Creating dataloader...")
+        self.train_dataloader = DataLoader(
+                            dataset=list(zip(self.imgs_train, self.gt_imgs_train)),
+                            batch_size=self.batchsize,
+                            shuffle=True,
+                            num_workers=self.num_workers)
+
+        self.validate_dataloader = DataLoader(
+                                dataset=list(zip(self.imgs_validation, self.gt_imgs_validation)),
+                                batch_size=self.batchsize,
+                                shuffle=False,
+                                num_workers=self.num_workers)
+        print("Done!")
     def proceed(self):
         """Proceed to the basic processing."""
         self.load_data()
@@ -111,6 +123,8 @@ class BasicProcessing:
         self.create_labels()
         self.permute_axis()
         self.create_sets()
+        self.create_dataloader()
+        
 
 class AdvancedProcessing:
     """ Class to process all datas in a more advanced way."""

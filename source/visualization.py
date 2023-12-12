@@ -31,7 +31,7 @@ def visualize_patch(img):
     fig1 = plt.figure(figsize=(5, 5))
     plt.imshow(img, cmap="Greys_r")
 
-def visualize_solution(img,imgwidth,imgheight,prediction):
+def visualize_solution(img, idx_img, prediction):
     """Visualize an image and the predicted groundtruth.
     Args:
         img: Image.
@@ -40,7 +40,9 @@ def visualize_solution(img,imgwidth,imgheight,prediction):
         prediction: Prediction.
 
     """
-    predicted_im = label_to_img(imgwidth, imgheight, PATCH_SIZE, PATCH_SIZE, prediction)
+    imgwidth = img.shape[0]
+    imgheight = img.shape[1]
+    predicted_im = label_to_img(imgwidth, imgheight, PATCH_SIZE, PATCH_SIZE, prediction, idx_img = idx_img)
     fig1 = plt.figure(figsize=(7, 7))  # create a figure with the default size
 
     image = make_img_overlay(img, predicted_im)
@@ -48,7 +50,7 @@ def visualize_solution(img,imgwidth,imgheight,prediction):
     plt.imshow(image)
 
 
-def label_to_img(imgwidth, imgheight, w, h, labels):
+def label_to_img(imgwidth, imgheight, w, h, labels, idx_img = 1):
     """Convert labels to images.
     Args:
         imgwidth (int): Image width.
@@ -58,7 +60,7 @@ def label_to_img(imgwidth, imgheight, w, h, labels):
         labels (np.ndarray): Labels.
     """
     im = np.zeros([imgwidth, imgheight])
-    idx = 0
+    idx = 1444 * idx_img 
     for i in range(0, imgheight, h):
         for j in range(0, imgwidth, w):
             im[j : j + w, i : i + h] = labels[idx]
@@ -75,6 +77,7 @@ def make_img_overlay(img, predicted_img):
     w = img.shape[0]
     h = img.shape[1]
     color_mask = np.zeros((w, h, 3), dtype=np.uint8)
+
     color_mask[:, :, 0] = predicted_img * 255
 
     img8 = img_float_to_uint8(img)
@@ -82,3 +85,4 @@ def make_img_overlay(img, predicted_img):
     overlay = Image.fromarray(color_mask, "RGB").convert("RGBA")
     new_img = Image.blend(background, overlay, 0.2)
     return new_img
+    
