@@ -87,16 +87,17 @@ def handle_path(data_path, csv_path, mask_path, model_path):
         # If the path does not exist, raise an error
         raise FileNotFoundError(f"Path {mask_path} does not exist.")
     
-    if not os.path.exists(model_path):
-        # If the path does not exist, raise an error
-        raise FileNotFoundError(f"Path {model_path} does not exist.")
-    else:
-        if not os.path.isfile(model_path):
-            # If the path is not a file, raise an error
-            raise FileNotFoundError(f"Path {model_path} is not a file.")
-        elif not os.path.basename(model_path).endswith('.pth'):
-            # If the file is not a .pth file, raise an error
-            raise FileNotFoundError(f"File {model_path} is not a .pth file.")
+    if model_path is not None:
+        if not os.path.exists(model_path):
+            # If the path does not exist, raise an error
+            raise FileNotFoundError(f"Path {model_path} does not exist.")
+        else:
+            if not os.path.isfile(model_path):
+                # If the path is not a file, raise an error
+                raise FileNotFoundError(f"Path {model_path} is not a file.")
+            elif not os.path.basename(model_path).endswith('.pth'):
+                # If the file is not a .pth file, raise an error
+                raise FileNotFoundError(f"File {model_path} is not a .pth file.")
     
     return data_path, csv_path, mask_path, model_path
 
@@ -121,7 +122,7 @@ def run(data_path, csv_path, mask_path, model_path):
         patch_size = 128
         standardize = True
         myDatas = AdvancedProcessing(standardize=standardize, aug_patch_size=patch_size, blur=True)
-        myDatas.proceed(data_path)
+        myDatas.proceed()
         
         # Define the model
         cnn = Advanced_CNN(patch_size, threshold=0.2)
