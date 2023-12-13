@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- author : Vincent Roduit -*-
 # -*- date : 2023-12-03 -*-
-# -*- Last revision: 2023-12-03 -*-
+# -*- Last revision: 2023-12-13 (Vincent Roduit, Yannis Laaroussi)  -*-
 # -*- python version : 3.11.6 -*-
 # -*- Class dedicated to test data -*-
 
@@ -13,7 +13,6 @@ from torch.utils.data import DataLoader
 import constants
 from load_datas import load_test_datas
 from helpers import masks_to_submission, save_pred_as_png
-from visualization import label_to_img
 from data_augmentation import create_test_set
 
 

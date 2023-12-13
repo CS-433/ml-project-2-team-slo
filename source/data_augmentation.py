@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+# -*- author : Vincent Roduit -*-
+# -*- date : 2023-11-25 -*-
+# -*- Last revision: 2023-12-13 (Vincent Roduit) -*-
+# -*- python version : 3.11.6 -*-
+# -*- Regroup functions used to process data -*-
+
+# import libraires
 import numpy as np
 import constants
 from scipy.ndimage import rotate
@@ -6,7 +14,15 @@ from helpers import *
 
 
 def create_test_set(images, aug_patch_size, gt_images=None):
-    # Fonction testée et donne les mêmes résultats que create_windows_gt
+    """ Create the test set from the images.
+    Args:
+        images (list): List of images.
+        aug_patch_size (int): Size of the augmented patch.
+        gt_images (list): List of groundtruth images.
+    Returns:
+        np.array: Array of patches.
+        np.array: Array of labels.
+    """
     list_patches = []
     list_labels = []
     for im in images:
@@ -36,11 +52,30 @@ def create_test_set(images, aug_patch_size, gt_images=None):
     return np.transpose(list_patches, (0, 3, 1, 2)), list_labels
 
 
-def pad_image(img, padSize):
-    return np.pad(img, ((padSize, padSize), (padSize, padSize), (0, 0)), "reflect")
+def pad_image(img, size_padding):
+    """ Pad the image with reflected pixels.
+    Args:
+        img (np.array): Image to pad.
+        size_padding (int): Size of the padding.
+    Returns:
+        np.array: Padded image.
+    """
+    return np.pad(img, ((size_padding, size_padding), (size_padding, size_padding), (0, 0)), "reflect")
 
 
 def create_samples(imgs, gt_imgs, aug_patch_size, num_samples, batch_size, blur=False):
+    """ Create the samples for the training.
+    Args:
+        imgs (list): List of images.
+        gt_imgs (list): List of groundtruth images.
+        aug_patch_size (int): Size of the augmented patch.
+        num_samples (int): Number of samples to create.
+        batch_size (int): Size of the batch.
+        blur (bool): Whether to blur the images or not.
+    Returns:
+        np.array: Array of patches.
+        np.array: Array of labels.
+    """
     np.random.seed(0)
     half_patch = constants.PATCH_SIZE // 2
 
@@ -98,15 +133,21 @@ def create_samples(imgs, gt_imgs, aug_patch_size, num_samples, batch_size, blur=
     X = np.array(X)
     Y = np.array(Y)
     X = X.reshape(-1, aug_patch_size, aug_patch_size, 3)
-    Y = Y.reshape(
-        -1,
-    )
+    Y = Y.reshape(-1,)
     X = X.transpose(0, 3, 1, 2)
     print("end process...")
     return X, Y
 
 
 def rotate_imgs_train(imgs_train, gt_imgs_train):
+    """ Rotate the images and the groundtruth images.
+    Args:
+        imgs_train (list): List of images.
+        gt_imgs_train (list): List of groundtruth images.
+    Returns:
+        np.array: Array of rotated images.
+        np.array: Array of rotated groundtruth images.
+    """
     angles = [45, 135, 225, 315]
     rotated_imgs = []
     rotated_gt_imgs = []
@@ -121,6 +162,13 @@ def rotate_imgs_train(imgs_train, gt_imgs_train):
 
 
 def blur_images(imgs_train, sigma=constants.SIGMA):
+    """ Blur the images.
+    Args:
+        imgs_train (list): List of images.
+        sigma (int): Sigma of the Gaussian filter.
+    Returns:
+        np.array: Array of blurred images.
+    """
     blurred_imgs = []
 
     for img in imgs_train:
@@ -134,6 +182,18 @@ def blur_images(imgs_train, sigma=constants.SIGMA):
 
 
 def choose_image(rotated_imgs, rotated_gt_imgs, aug_imgs, gt_imgs, blured_imgs, blur):
+    """ Choose an image.
+    Args:
+        rotated_imgs (list): List of rotated images.
+        rotated_gt_imgs (list): List of rotated groundtruth images.
+        aug_imgs (list): List of augmented images.
+        gt_imgs (list): List of groundtruth images.
+        blured_imgs (list): List of blurred images.
+        blur (bool): Whether to blur the images or not.
+    Returns:
+        np.array: Image.
+        np.array: Groundtruth image.
+    """
     if np.random.randn() <= 0.1:
         img_index = np.random.randint(len(rotated_imgs))
         img = rotated_imgs[img_index]
@@ -150,6 +210,15 @@ def choose_image(rotated_imgs, rotated_gt_imgs, aug_imgs, gt_imgs, blured_imgs, 
 
 
 def create_single_sample(img, gt, half_patch, size_pading):
+    """Create a single sample for data augmentation.
+    Args:
+        img (numpy.ndarray): The input image.
+        gt (numpy.ndarray): The ground truth image.
+        half_patch (int): Half the size of the patch.
+        size_pading (int): Size of the padding.
+    Returns:
+        tuple: A tuple containing the augmented image and its label.
+    """
     img_width = gt.shape[0]
     img_height = gt.shape[1]
     x_coord = np.random.randint(half_patch, img_width - half_patch)

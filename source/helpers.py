@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # -*- author : Vincent Roduit, Yannis Laaroussi -*-
-# -*- Credits: Machine Learning course of the EPFL, Switzerland-*-
+# -*- Credits: Machine Learning course of the EPFL, Switzerland -*-
 # -*- date : 2023-11-25 -*-
 # -*- Last revision: 2023-11-35 -*-
 # -*- python version : 3.11.6 -*-
@@ -13,10 +13,10 @@ import constants
 import re
 import os
 from PIL import Image
+
+# import files
 from visualization import label_to_img
 
-
-# Helper functions
 def load_image(infilename):
     """Load an image from disk.
     Args:
@@ -29,6 +29,12 @@ def load_image(infilename):
 
 
 def value_to_class(patch):
+    """Convert a patch value to a class.
+    Args:
+        patch (np.ndarray): Patch to convert.
+    Returns:
+        int: The class.
+    """
     patch_mean = np.mean(patch)
     if patch_mean > constants.FOREGROUND_THRESHOLD:
         return 1

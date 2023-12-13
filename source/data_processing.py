@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- author : Vincent Roduit -*-
 # -*- date : 2023-11-25 -*-
-# -*- Last revision: 2023-12-03 -*-
+# -*- Last revision: 2023-12-13 (Vincent Roduit, Yannis Laaroussi) -*-
 # -*- python version : 3.11.6 -*-
 # -*- Class to process all datas -*-
 
@@ -84,13 +84,10 @@ class BasicProcessing:
         )
         print("Done!")
 
-    def create_sets(
-        self, validation_size=constants.VALIDATION_RATIO, test_size=constants.TEST_RATIO
-    ):
-        """Split the data into train, test and validation sets.
+    def create_sets(self, test_size=constants.TEST_RATIO):
+        """Create train and validation sets.
         Args:
-            VALIDATION_SIZE (float): Size of the validation set.
-            TEST_SIZE (float): Size of the test set.
+            test_size (float): Ratio of the test set.
         """
         print("Splitting data...")
         (

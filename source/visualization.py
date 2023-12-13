@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- author : Vincent Roduit -*-
 # -*- date : 2023-11-25 -*-
-# -*- Last revision: 2023-11-35 -*-
+# -*- Last revision: 2023-12-13 (Vincent Roduit, Yannis Laaroussi) -*-
 # -*- python version : 3.11.6 -*-
 # -*- Functions to visualize datas -*-
 

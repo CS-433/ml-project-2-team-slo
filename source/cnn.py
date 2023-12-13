@@ -174,7 +174,12 @@ class Advanced_CNN(CNN):
         self.fc = nn.Linear(128 * (patch_size // 32) * (patch_size // 32), 1)
 
     def forward(self, x):
-        """Forward pass."""
+        """Forward pass.
+        Args:
+            x (torch.Tensor): Input tensor.
+        Returns:
+            torch.Tensor: Output tensor.
+        """
         x = self.pool1(self.relu1(self.conv1(x)))
         x = self.pool2(self.relu2(self.dropout1(self.conv2(x))))
         x = self.pool3(self.relu3(self.conv3(x)))
@@ -222,7 +227,12 @@ class Basic_CNN(CNN):
         self.fc = nn.Linear(32 * (patch_size // 2) * (patch_size // 2), 1)
 
     def forward(self, x):
-        """Forward pass."""
+        """Forward pass.
+        Args:
+            x (torch.Tensor): Input tensor.
+        Returns:
+            torch.Tensor: Output tensor.
+        """
         x = self.pool1(self.relu1(self.conv1(x)))
         x = self.relu2(self.conv2(x))
         x = x.view(x.size(0), -1)
