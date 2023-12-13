@@ -17,6 +17,7 @@ from PIL import Image
 # import files
 from visualization import label_to_img
 
+
 def load_image(infilename):
     """Load an image from disk.
     Args:

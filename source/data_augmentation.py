@@ -14,7 +14,7 @@ from helpers import *
 
 
 def create_test_set(images, aug_patch_size, gt_images=None):
-    """ Create the test set from the images.
+    """Create the test set from the images.
     Args:
         images (list): List of images.
         aug_patch_size (int): Size of the augmented patch.
@@ -53,18 +53,22 @@ def create_test_set(images, aug_patch_size, gt_images=None):
 
 
 def pad_image(img, size_padding):
-    """ Pad the image with reflected pixels.
+    """Pad the image with reflected pixels.
     Args:
         img (np.array): Image to pad.
         size_padding (int): Size of the padding.
     Returns:
         np.array: Padded image.
     """
-    return np.pad(img, ((size_padding, size_padding), (size_padding, size_padding), (0, 0)), "reflect")
+    return np.pad(
+        img,
+        ((size_padding, size_padding), (size_padding, size_padding), (0, 0)),
+        "reflect",
+    )
 
 
 def create_samples(imgs, gt_imgs, aug_patch_size, num_samples, batch_size, blur=False):
-    """ Create the samples for the training.
+    """Create the samples for the training.
     Args:
         imgs (list): List of images.
         gt_imgs (list): List of groundtruth images.
@@ -133,14 +137,16 @@ def create_samples(imgs, gt_imgs, aug_patch_size, num_samples, batch_size, blur=
     X = np.array(X)
     Y = np.array(Y)
     X = X.reshape(-1, aug_patch_size, aug_patch_size, 3)
-    Y = Y.reshape(-1,)
+    Y = Y.reshape(
+        -1,
+    )
     X = X.transpose(0, 3, 1, 2)
     print("end process...")
     return X, Y
 
 
 def rotate_imgs_train(imgs_train, gt_imgs_train):
-    """ Rotate the images and the groundtruth images.
+    """Rotate the images and the groundtruth images.
     Args:
         imgs_train (list): List of images.
         gt_imgs_train (list): List of groundtruth images.
@@ -162,7 +168,7 @@ def rotate_imgs_train(imgs_train, gt_imgs_train):
 
 
 def blur_images(imgs_train, sigma=constants.SIGMA):
-    """ Blur the images.
+    """Blur the images.
     Args:
         imgs_train (list): List of images.
         sigma (int): Sigma of the Gaussian filter.
@@ -182,7 +188,7 @@ def blur_images(imgs_train, sigma=constants.SIGMA):
 
 
 def choose_image(rotated_imgs, rotated_gt_imgs, aug_imgs, gt_imgs, blured_imgs, blur):
-    """ Choose an image.
+    """Choose an image.
     Args:
         rotated_imgs (list): List of rotated images.
         rotated_gt_imgs (list): List of rotated groundtruth images.

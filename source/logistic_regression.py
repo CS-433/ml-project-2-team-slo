@@ -47,7 +47,7 @@ class LogisticRegression:
         return feat
 
     def compute_vectors(self):
-        """Compute the vectors X and Y. """
+        """Compute the vectors X and Y."""
         self.X = np.asarray(
             [
                 self.extract_features_2d(self.imgs_patches[i])
