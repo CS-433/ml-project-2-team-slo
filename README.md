@@ -23,7 +23,7 @@ CS-433 Machine Learning
 
 ## Abstract 
 The purpose of this project is to create a binary classifier that is able to recognize roads from Google maps satellite images. This kind of task is very common in image classification and computer vision. This repository presents solutions addressed to solve this problem. The major issues that have to be handled are the following:
-* The datas are not well balanced : only 25% of the datas are roads.
+* The data are not well balanced : only 25% of the data are roads.
 * Roads are majoritary vertical or horizontal.
 * The color of the roads is very similar to the one of sidewalk or parking area.
 
@@ -33,6 +33,10 @@ These problems will be discussed in the following sections.
 ```
 .
 ├── README.md
+├── data
+│   ├── submission
+│   ├── test_set_images
+│   └── training
 ├── models
 │   ├── advanced_cnn_128.pth
 │   ├── advanced_cnn_128_adamw.pth
@@ -45,11 +49,11 @@ These problems will be discussed in the following sections.
 │   ├── advanced_cnn_color_128.pth
 │   ├── basic_cnn_16.pth
 │   ├── basic_cnn_32.pth
-│   └── basic_cnn_64.pth
+│   ├── basic_cnn_64.pth
+│   └── basic_cnn_basic_process.pth
 ├── resources
 │   └── logo-epfl.png
 ├── source
-│   ├── __pycache__
 │   ├── cnn.py
 │   ├── constants.py
 │   ├── data_augmentation.py
@@ -58,7 +62,6 @@ These problems will be discussed in the following sections.
 │   ├── load_datas.py
 │   ├── logistic_regression.py
 │   ├── main.ipynb
-│   ├── post_processing.py
 │   ├── run.py
 │   ├── test_data.py
 │   └── visualization.py
