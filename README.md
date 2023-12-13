@@ -180,4 +180,8 @@ The file run.py enables to directly load one of the different trained model pres
 - `--output_mask_path`: path to the directory where the predicted mask images are saved.
 - `--model_path`: path to the model file to load (it will train and predict the best model if not specified).
 
-An example of run is: ```python run.py --model_path ../models/advanced_cnn_128_blur.pth --data_path ../data``` if the dataset folder */data* ([Dataset Structure](#dataset-structure)) is located at the root of the project.
+An example of run is:
+```
+python run.py --model_path ../models/advanced_cnn_128_blur.pth --data_path ../data
+```
+if the dataset folder */data* ([Dataset Structure](#dataset-structure)) is located at the root of the project.
