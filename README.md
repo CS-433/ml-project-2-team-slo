@@ -15,6 +15,7 @@ CS-433 Machine Learning
 
 - [Abstract](#abstract)
 - [Project Structure](#project-structure)
+- [Dataset Structure](#dataset-structure)
 - [Data Wrangling](#data-wrangling)
 - [Models](#models)
 - [Results](#results)
@@ -68,7 +69,29 @@ These problems will be discussed in the following sections.
     ├── submission_to_mask.py
     └── tf_aerial_images.py
 ```
-The folder `source` provides all the codes used to develop the models. All the tested models are grouped in the folder `models` and can be reused without training (see the section **Run the solution** for more help. Folder `template` provides the given codes to start the projects. Some of the functions introduced in this code has been use in the code.
+The folder */source* provides all the codes used to develop the models. All the tested models are grouped in the folder */models* and can be reused without training (see the section **Run the solution** for more help. Folder */template* provides the given codes to start the projects. Some of the functions introduced in this code has been use in the code.
+
+## Dataset Structure
+
+```
+data
+├── test_set_images
+│   ├── test_1
+│   │   └── test_1.png
+│   ├── ...
+│   │   └── ...
+│   ├── test_50
+│   │   └── test_50.png
+└── training
+    ├── groundtruth
+    │   ├── satImage_001.png
+    │   ├── ...
+    │   └── satImage_100.png
+    └── images
+        ├── satImage_001.png
+        ├── ...
+        └── satImage_100.png
+```
 
 ## Data wrangling
 The training datas consist of a set of 100 RGB images of size 400x400 pixels, comming with the correspond label images. The first step is to convert the images to arrays that can be used later on. The predictions are done on patches of size 16x16 pixels. Therefore groundtruth images have to be croped to paches of this size.
@@ -84,7 +107,7 @@ To classes are done to perform data processing: `BasicProcessing``
 
 This model doesn't address the problems mentionned in the abstract. The purpose of this class was only a first step to understand the datas and be able to produce results. 
 
-The second class, `AdvancedProcessing`, proposes solutions to problems cite in introduction. It performs the following transformations:
+The second class, **AdvancedProcessing**, proposes solutions to problems cite in introduction. It performs the following transformations:
 * load datas
 * standardize color
 * split sets: split images into training and validate sets
@@ -97,7 +120,39 @@ The second class, `AdvancedProcessing`, proposes solutions to problems cite in i
 It's good noticing that only samples for the training are balanced. Patches of the validation set is create in the "standard" fashion. Therefore, the obtained F1-score for the validation is done on unbalanced datas.
 
 ## Models
-Two models are proposed for this project, a basic and an advanced convolution neural network.
+Two models are proposed for this project, a basic and an advanced convolution neural network. The structure of the models is defined as follow:
+
+**Basic CNN**
+- Convolutional layer with 32 filters, kernel size 3, stride 1, padding 1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 32 filters, kernel size 3, stride 1, padding 1
+- ReLU activation
+- Fully connected layer with 1 output
+
+**Advanced CNN**
+- Convolutional layer with 32 filters, kernel size 3, stride 1, padding 1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 32 filters, kernel size 3, stride 1, padding 1
+- Dropout layer with probability 0.1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 64 filters, kernel size 3, stride 1, padding 1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 64 filters, kernel size 3, stride 1, padding 1
+- Dropout layer with probability 0.1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 128 filters, kernel size 3, stride 1, padding 1
+- ReLU activation
+- Max pooling layer with kernel size 2, stride 2
+- Convolutional layer with 128 filters, kernel size 3, stride 1, padding 1
+- Dropout layer with probability 0.1
+- ReLU activation
+- Fully connected layer with 1 output
+
 ## Results
 
 | Model                                      | Patch size | Optimizer    | Threshold | Accuracy | F1-score | AICrowd F1-Score | AICrowd accuracy |
@@ -117,3 +172,12 @@ Two models are proposed for this project, a basic and an advanced convolution ne
 
 ## Run the solution
 
+
+The file run.py enables to directly load one of the different trained model present in the folder */models* and make the predictions of the test set or to train the best model from the beginning. The following arguments can be passed:
+
+- `--data_path`: path to the dataset folder which should follow structure described in section [Dataset Structure](#dataset-structure).
+- `--output_csv_path`: path to the directory where the submission.csv will be written.
+- `--output_mask_path`: path to the directory where the predicted mask images are saved.
+- `--model_path`: path to the model file to load (it will train and predict the best model if not specified).
+
+An example of run is: `python run.py --model_path ../models/advanced_cnn_128_blur.pth --data_path ../data` if the dataset folder */data* ([Dataset Structure](#dataset-structure)) is located at the root of the project.
