@@ -74,7 +74,7 @@ The folder */source* provides all the codes used to develop the models. All the 
 ## Dataset Structure
 
 ```
-.
+data
 ├── test_set_images
 │   ├── test_1
 │   │   └── test_1.png
@@ -152,7 +152,7 @@ Two models are proposed for this project, a basic and an advanced convolution ne
 - Dropout layer with probability 0.1
 - ReLU activation
 - Fully connected layer with 1 output
-- 
+
 ## Results
 
 | Model                                      | Patch size | Optimizer    | Threshold | Accuracy | F1-score | AICrowd F1-Score | AICrowd accuracy |
@@ -179,3 +179,5 @@ The file run.py enables to directly load one of the different trained model pres
 - `--output_csv_path`: path to the directory where the submission.csv will be written.
 - `--output_mask_path`: path to the directory where the predicted mask images are saved.
 - `--model_path`: path to the model file to load (it will train and predict the best model if not specified).
+
+An example of run is: `python run.py --model_path ../models/advanced_cnn_128_blur.pth --data_path ../data` if the dataset folder */data* ([Dataset Structure](#dataset-structure)) is located at the root of the project.
