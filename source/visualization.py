@@ -5,13 +5,14 @@
 # -*- python version : 3.11.6 -*-
 # -*- Functions to visualize datas -*-
 
-#import librairies
+# import librairies
 import matplotlib.pyplot as plt
 from PIL import Image
 
-#import files
-from constants import*
-from helpers import*
+# import files
+from constants import *
+from helpers import *
+
 
 def visualize(imgs, gt_imgs, index=0):
     """Visualize an image and its groundtruth.
@@ -23,13 +24,15 @@ def visualize(imgs, gt_imgs, index=0):
     fig1 = plt.figure(figsize=(10, 10))
     plt.imshow(cimg, cmap="Greys_r")
 
+
 def visualize_patch(img):
-    """ Visualize a patch.
+    """Visualize a patch.
     Args:
         img: Image.
     """
     fig1 = plt.figure(figsize=(5, 5))
     plt.imshow(img, cmap="Greys_r")
+
 
 def visualize_solution(img, idx_img, prediction):
     """Visualize an image and the predicted groundtruth.
@@ -42,7 +45,9 @@ def visualize_solution(img, idx_img, prediction):
     """
     imgwidth = img.shape[0]
     imgheight = img.shape[1]
-    predicted_im = label_to_img(imgwidth, imgheight, PATCH_SIZE, PATCH_SIZE, prediction, idx_img = idx_img)
+    predicted_im = label_to_img(
+        imgwidth, imgheight, PATCH_SIZE, PATCH_SIZE, prediction, idx_img=idx_img
+    )
     fig1 = plt.figure(figsize=(7, 7))  # create a figure with the default size
 
     image = make_img_overlay(img, predicted_im)
@@ -50,7 +55,7 @@ def visualize_solution(img, idx_img, prediction):
     plt.imshow(image)
 
 
-def label_to_img(imgwidth, imgheight, w, h, labels, idx_img = 1):
+def label_to_img(imgwidth, imgheight, w, h, labels, idx_img=0):
     """Convert labels to images.
     Args:
         imgwidth (int): Image width.
@@ -60,7 +65,7 @@ def label_to_img(imgwidth, imgheight, w, h, labels, idx_img = 1):
         labels (np.ndarray): Labels.
     """
     im = np.zeros([imgwidth, imgheight])
-    idx = 1444 * idx_img 
+    idx = 1444 * idx_img
     for i in range(0, imgheight, h):
         for j in range(0, imgwidth, w):
             im[j : j + w, i : i + h] = labels[idx]
@@ -85,4 +90,3 @@ def make_img_overlay(img, predicted_img):
     overlay = Image.fromarray(color_mask, "RGB").convert("RGBA")
     new_img = Image.blend(background, overlay, 0.2)
     return new_img
-    

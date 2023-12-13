@@ -5,26 +5,28 @@
 # -*- python version : 3.11.6 -*-
 # -*- Class dedicated to test data -*-
 
-#import libraries
+# import libraries
 import numpy as np
 from torch.utils.data import DataLoader
 
-#import files
+# import files
 import constants
 from load_datas import load_test_datas
 from helpers import masks_to_submission, save_pred_as_png
 from visualization import label_to_img
 from data_augmentation import create_test_set
 
+
 class TestData:
-    """ Class to process test datas"""
+    """Class to process test datas"""
+
     def __init__(
         self,
         standardize=False,
         batchsize=constants.BATCH_SIZE,
         num_workers=constants.NUM_WORKERS,
         patch_size=constants.PATCH_SIZE,
-        aug_patch_size=constants.AUG_PATCH_SIZE
+        aug_patch_size=constants.AUG_PATCH_SIZE,
     ):
         """Constructor."""
         self.standardize = standardize
@@ -41,14 +43,13 @@ class TestData:
         print("Loading data...")
         self.imgs = load_test_datas(test_path)
         print("Done!")
-    
+
     def create_dataloader(self):
         """Create dataloader from the patches."""
         print("Creating dataloader...")
         self.test_dataloader = DataLoader(
-                                dataset=self.patches,
-                                batch_size=self.batchsize,
-                                shuffle=False)
+            dataset=self.patches, batch_size=self.batchsize, shuffle=False
+        )
         print("Done!")
 
     def standardize_color(self):
@@ -69,19 +70,20 @@ class TestData:
     def create_submission(self, pred):
         """
         Create the submission file.
-        
+
         Args:
             pred (np.ndarray): The predictions.
         """
         images_filenames = save_pred_as_png(
-            pred, 
-            len(self.imgs), 
-            self.patch_size, 
-            folder_path=constants.RESULTS_FOLDER_PATH)
-        
-        masks_to_submission('submission.csv', *images_filenames)
+            pred,
+            len(self.imgs),
+            self.patch_size,
+            folder_path=constants.RESULTS_FOLDER_PATH,
+        )
+
+        masks_to_submission("submission.csv", *images_filenames)
         print("Submission created!")
-    
+
     def proceed(self, test_path=constants.TEST_DIR):
         """Process all the steps."""
         self.load_data(test_path)

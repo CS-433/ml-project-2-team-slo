@@ -6,7 +6,7 @@
 # -*- python version : 3.11.6 -*-
 # -*- Function to read and vizualize datas-*-
 
-#import libraries
+# import libraries
 import numpy as np
 import matplotlib.image as mpimg
 import constants
@@ -14,6 +14,7 @@ import re
 import os
 from PIL import Image
 from visualization import label_to_img
+
 
 # Helper functions
 def load_image(infilename):
@@ -26,12 +27,14 @@ def load_image(infilename):
     data = mpimg.imread(infilename)
     return data
 
+
 def value_to_class(patch):
     patch_mean = np.mean(patch)
     if patch_mean > constants.FOREGROUND_THRESHOLD:
         return 1
     else:
         return 0
+
 
 def img_float_to_uint8(img):
     """Convert float image to uint8.
@@ -91,19 +94,20 @@ def img_crop(im, w, h):
             list_patches.append(im_patch)
     return list_patches
 
+
 def f1_score(preds, targets):
     """
     Compute the F1 score.
-    
+
     Args:
         preds (np.ndarray): The predictions
         targets (np.ndarray): The targets
-    
+
     Returns:
         float: The F1 score
     """
     assert len(preds) == len(targets)
-    
+
     tp = np.sum(preds * targets)
     fp = np.sum(preds * (1 - targets))
     fn = np.sum((1 - preds) * targets)
@@ -113,7 +117,13 @@ def f1_score(preds, targets):
         return np.nan
     return 2 * (precision * recall) / (precision + recall)
 
-def save_pred_as_png(sub_preds, nb_imgs, patch_size=constants.PATCH_SIZE, folder_path=constants.RESULTS_FOLDER_PATH):
+
+def save_pred_as_png(
+    sub_preds,
+    nb_imgs,
+    patch_size=constants.PATCH_SIZE,
+    folder_path=constants.RESULTS_FOLDER_PATH,
+):
     """
     Save the predictions as PNG
 
@@ -122,14 +132,14 @@ def save_pred_as_png(sub_preds, nb_imgs, patch_size=constants.PATCH_SIZE, folder
         nb_imgs (int): The number of images
         patch_size (int): The size of the patch
         folder_path (str): The path to the folder where to save the images
-    
+
     Returns:
         list: The list of the images filenames
     """
     images_filenames = []
 
     nb_patches_per_img = len(sub_preds) // nb_imgs
-    
+
     if not os.path.exists(folder_path):
         # Create the folder if it does not exist
         os.makedirs(folder_path)
@@ -141,8 +151,13 @@ def save_pred_as_png(sub_preds, nb_imgs, patch_size=constants.PATCH_SIZE, folder
     for i in range(nb_imgs):
         # Assuming label_to_img returns a binary image (0s and 1s)
 
-        predicted_im = label_to_img(608, 608, patch_size, patch_size, 
-                                    sub_preds[i * nb_patches_per_img: (i + 1) * nb_patches_per_img])
+        predicted_im = label_to_img(
+            608,
+            608,
+            patch_size,
+            patch_size,
+            sub_preds[i * nb_patches_per_img : (i + 1) * nb_patches_per_img],
+        )
 
         # Convert the numpy array to PIL Image
         predicted_img_pil = Image.fromarray((predicted_im * 255).astype(np.uint8))
@@ -165,14 +180,14 @@ def mask_to_submission_strings(image_filename):
     patch_size = 16
     for j in range(0, im.shape[1], patch_size):
         for i in range(0, im.shape[0], patch_size):
-            patch = im[i:i + patch_size, j:j + patch_size]
+            patch = im[i : i + patch_size, j : j + patch_size]
             label = value_to_class(patch)
-            yield("{:03d}_{}_{},{}".format(img_number, j, i, label))
+            yield ("{:03d}_{}_{},{}".format(img_number, j, i, label))
 
 
 def masks_to_submission(submission_filename, *image_filenames):
     """Converts images into a submission file"""
-    with open(submission_filename, 'w') as f:
-        f.write('id,prediction\n')
+    with open(submission_filename, "w") as f:
+        f.write("id,prediction\n")
         for fn in image_filenames[0:]:
-            f.writelines('{}\n'.format(s) for s in mask_to_submission_strings(fn))
+            f.writelines("{}\n".format(s) for s in mask_to_submission_strings(fn))

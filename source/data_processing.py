@@ -17,6 +17,7 @@ from helpers import *
 from load_datas import load_datas
 from data_augmentation import create_samples, create_test_set
 
+
 class BasicProcessing:
     """Class to process all datas. All the attributes are numpy arrays."""
 
@@ -37,14 +38,16 @@ class BasicProcessing:
         self.imgs_validation = np.array([])
         self.gt_imgs_validation = np.array([])
 
-    
     def create_patches(self, patch_size=constants.PATCH_SIZE):
         """Create patches from the images.
         Args:
             PATCH_SIZE (int): Size of the patch.
         """
         print("Creating patches...")
-        img_patches = [img_crop(self.imgs[i], patch_size, patch_size) for i in range(len(self.imgs))]
+        img_patches = [
+            img_crop(self.imgs[i], patch_size, patch_size)
+            for i in range(len(self.imgs))
+        ]
         # Linearize list of patches
 
         self.imgs_patches = np.asarray(
@@ -54,7 +57,10 @@ class BasicProcessing:
                 for j in range(len(img_patches[i]))
             ]
         )
-        gt_patches = [img_crop(self.gt_imgs[i], patch_size, patch_size) for i in range(len(self.imgs))]
+        gt_patches = [
+            img_crop(self.gt_imgs[i], patch_size, patch_size)
+            for i in range(len(self.imgs))
+        ]
         self.gt_imgs_patches = np.asarray(
             [
                 gt_patches[i][j]
@@ -63,7 +69,6 @@ class BasicProcessing:
             ]
         )
         print("Done!")
-    
 
     def create_labels(self, threshold=constants.FOREGROUND_THRESHOLD):
         """Create labels from the patches.
@@ -79,43 +84,58 @@ class BasicProcessing:
         )
         print("Done!")
 
-
-    def create_sets(self, validation_size=constants.VALIDATION_RATIO, test_size=constants.TEST_RATIO):
+    def create_sets(
+        self, validation_size=constants.VALIDATION_RATIO, test_size=constants.TEST_RATIO
+    ):
         """Split the data into train, test and validation sets.
         Args:
             VALIDATION_SIZE (float): Size of the validation set.
             TEST_SIZE (float): Size of the test set.
         """
         print("Splitting data...")
-        self.imgs_train, self.imgs_validation, self.gt_imgs_train, self.gt_imgs_validation  = train_test_split(
-            self.imgs_patches, self.gt_imgs_patches, test_size=test_size, random_state=42
+        (
+            self.imgs_train,
+            self.imgs_validation,
+            self.gt_imgs_train,
+            self.gt_imgs_validation,
+        ) = train_test_split(
+            self.imgs_patches,
+            self.gt_imgs_patches,
+            test_size=test_size,
+            random_state=42,
         )
         print("Done!")
+
     def permute_axis(self):
         """Permute the axis of the images."""
         print("Permuting axis...")
         self.imgs_patches = np.transpose(self.imgs_patches, (0, 3, 1, 2))
         print("Done!")
+
     def load_data(self):
         """Load the data."""
         print("Loading data...")
         self.imgs, self.gt_imgs = load_datas(nb_img=constants.NB_IMAGES)
         print("Done!")
+
     def create_dataloader(self):
         """Create dataloader from the patches."""
         print("Creating dataloader...")
         self.train_dataloader = DataLoader(
-                            dataset=list(zip(self.imgs_train, self.gt_imgs_train)),
-                            batch_size=self.batchsize,
-                            shuffle=True,
-                            num_workers=self.num_workers)
+            dataset=list(zip(self.imgs_train, self.gt_imgs_train)),
+            batch_size=self.batchsize,
+            shuffle=True,
+            num_workers=self.num_workers,
+        )
 
         self.validate_dataloader = DataLoader(
-                                dataset=list(zip(self.imgs_validation, self.gt_imgs_validation)),
-                                batch_size=self.batchsize,
-                                shuffle=False,
-                                num_workers=self.num_workers)
+            dataset=list(zip(self.imgs_validation, self.gt_imgs_validation)),
+            batch_size=self.batchsize,
+            shuffle=False,
+            num_workers=self.num_workers,
+        )
         print("Done!")
+
     def proceed(self):
         """Proceed to the basic processing."""
         self.load_data()
@@ -124,22 +144,25 @@ class BasicProcessing:
         self.permute_axis()
         self.create_sets()
         self.create_dataloader()
-        
+
 
 class AdvancedProcessing:
-    """ Class to process all datas in a more advanced way."""
-    def __init__(self, 
-                 nb_images=constants.NB_IMAGES, 
-                 patch_size=constants.PATCH_SIZE,
-                 aug_patch_size=constants.AUG_PATCH_SIZE,
-                 threshold=constants.FOREGROUND_THRESHOLD,
-                 validation_size=constants.VALIDATION_RATIO,
-                 batchsize=constants.BATCH_SIZE,
-                 num_workers=constants.NUM_WORKERS,
-                 num_samples=constants.TRAIN_SAMPLES,
-                 upsample=True,
-                 standardize=True,
-                 blur=False):
+    """Class to process all datas in a more advanced way."""
+
+    def __init__(
+        self,
+        nb_images=constants.NB_IMAGES,
+        patch_size=constants.PATCH_SIZE,
+        aug_patch_size=constants.AUG_PATCH_SIZE,
+        threshold=constants.FOREGROUND_THRESHOLD,
+        validation_size=constants.VALIDATION_RATIO,
+        batchsize=constants.BATCH_SIZE,
+        num_workers=constants.NUM_WORKERS,
+        num_samples=constants.TRAIN_SAMPLES,
+        upsample=True,
+        standardize=True,
+        blur=False,
+    ):
         """Constructor.
         Args:
             imgs (np.ndarray): Images.
@@ -171,7 +194,7 @@ class AdvancedProcessing:
         print("Loading data...")
         self.imgs, self.gt_imgs = load_datas(self.nb_images, train_path)
         print("Done!")
-    
+
     def standardize_color(self):
         """Standardize the images."""
         print("Standardizing...")
@@ -180,7 +203,7 @@ class AdvancedProcessing:
         for i in range(constants.NUM_CHANNELS):
             self.imgs[:, :, :, i] = (self.imgs[:, :, :, i] - means[i]) / stds[i]
         print("Done!")
-    
+
     def split_sets(self):
         """Split the data into train, test and validation sets."""
         print("Splitting data...")
@@ -189,7 +212,7 @@ class AdvancedProcessing:
         self.imgs_validation = self.imgs[80:100]
         self.gt_imgs_validation = self.gt_imgs[80:100]
         print("Done!")
-    
+
     def create_patches(self):
         """Create patches from the images."""
         print("Creating patches...")
@@ -200,28 +223,32 @@ class AdvancedProcessing:
             self.aug_patch_size,
             self.num_samples,
             self.batchsize,
-            self.blur)
+            self.blur,
+        )
         print("Creating patches for validation set...")
-        self.X_validation,self.y_validation = create_test_set(
+        self.X_validation, self.y_validation = create_test_set(
             images=self.imgs_validation,
             gt_images=self.gt_imgs_validation,
-            aug_patch_size=self.aug_patch_size)
+            aug_patch_size=self.aug_patch_size,
+        )
         print("Done!")
 
     def create_dataloader(self):
         """Create dataloader from the patches."""
         print("Creating dataloader...")
         self.train_dataloader = DataLoader(
-                            dataset=list(zip(self.X_train, self.y_train)),
-                            batch_size=self.batchsize,
-                            shuffle=True,
-                            num_workers=self.num_workers)
+            dataset=list(zip(self.X_train, self.y_train)),
+            batch_size=self.batchsize,
+            shuffle=True,
+            num_workers=self.num_workers,
+        )
 
         self.validate_dataloader = DataLoader(
-                                dataset=list(zip(self.X_validation, self.y_validation)),
-                                batch_size=self.batchsize,
-                                shuffle=False,
-                                num_workers=self.num_workers)
+            dataset=list(zip(self.X_validation, self.y_validation)),
+            batch_size=self.batchsize,
+            shuffle=False,
+            num_workers=self.num_workers,
+        )
         print("Done!")
 
     def proceed(self, train_path=constants.TRAIN_DIR):
@@ -232,4 +259,3 @@ class AdvancedProcessing:
         self.split_sets()
         self.create_patches()
         self.create_dataloader()
-    
