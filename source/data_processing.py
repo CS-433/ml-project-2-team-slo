@@ -70,8 +70,7 @@ class BasicProcessing:
         print("Done!")
 
     def create_labels(self):
-        """Create labels from the patches.
-        """
+        """Create labels from the patches."""
         print("Creating labels...")
         self.gt_imgs_patches = np.asarray(
             [

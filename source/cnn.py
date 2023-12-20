@@ -5,12 +5,12 @@
 # -*- python version : 3.11.6 -*-
 # -*- Convolutional Network model -*-
 
-#import libraries
+# import libraries
 import torch
 import torch.nn as nn
 import constants
 
-#import files
+# import files
 from helpers import *
 
 
