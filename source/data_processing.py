@@ -48,7 +48,6 @@ class BasicProcessing:
             img_crop(self.imgs[i], patch_size, patch_size)
             for i in range(len(self.imgs))
         ]
-        # Linearize list of patches
 
         self.imgs_patches = np.asarray(
             [
@@ -70,15 +69,13 @@ class BasicProcessing:
         )
         print("Done!")
 
-    def create_labels(self, threshold=constants.FOREGROUND_THRESHOLD):
+    def create_labels(self):
         """Create labels from the patches.
-        Args:
-            FOREGROUND_THRESHOLD (float): Threshold to determine if a patch is foreground or background.
         """
         print("Creating labels...")
         self.gt_imgs_patches = np.asarray(
             [
-                1 if np.mean(self.gt_imgs_patches[i]) > threshold else 0
+                value_to_class(self.gt_imgs_patches[i])
                 for i in range(len(self.gt_imgs_patches))
             ]
         )
